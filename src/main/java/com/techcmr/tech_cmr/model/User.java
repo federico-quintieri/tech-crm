@@ -29,7 +29,7 @@ public class User {
         inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
-    // esempio: Manager, Programmatore, Admin
+    // Getters and setters
 
     public Long getId() {
         return this.id;
