@@ -14,7 +14,7 @@ public class Role {
 
     private String name; // e.g. "ROLE_MANAGER", "ROLE_ADMIN"
 
-// Getters and setters
+    // Getters and setters
 
     public Long getId() {
         return id;
