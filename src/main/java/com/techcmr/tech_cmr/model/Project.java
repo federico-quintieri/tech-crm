@@ -2,42 +2,48 @@ package com.techcmr.tech_cmr.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
-import com.techcmr.tech_cmr.enums.TaskStatus;
-import com.techcmr.tech_cmr.enums.TaskPriority;
+import com.techcmr.tech_cmr.enums.ProjectStatus;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Id;
 
 @Entity
-public class Task {
+public class Project {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
+    private String name;
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "project_id")
-    private Project project;
+    @JoinColumn(name = "team_id")
+    private Team team;
+
+    @OneToMany(mappedBy = "project")
+    private List<Task> tasks;
+
+    @ManyToOne
+    private Workspace workspace;
 
     @Enumerated(EnumType.STRING)
-    private TaskStatus status;
+    private ProjectStatus status;
 
-    @Enumerated(EnumType.STRING)
-    private TaskPriority priority;
+    private LocalDate startDate;
+    private LocalDate expectedEndDate;
+    private LocalDate actualEndDate;
 
     private LocalDateTime createdAt;
-    private LocalDate dueDate;
-    private LocalDateTime completedAt;
 
-    // Getters and setters...
+    // getters and setters
 }
