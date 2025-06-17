@@ -6,15 +6,7 @@ import java.util.List;
 
 import com.techcmr.tech_cmr.enums.ProjectStatus;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class Project {
@@ -26,15 +18,27 @@ public class Project {
     private String name;
     private String description;
 
+    // Relazione molti a uno con team
     @ManyToOne
     @JoinColumn(name = "team_id")
     private Team team;
 
+    // Relazione uno a molti con project
     @OneToMany(mappedBy = "project")
     private List<Task> tasks;
 
+    // Relazione molti a uno con workspace
     @ManyToOne
     private Workspace workspace;
+
+    // Relazione molti a molti con tags
+    @ManyToMany
+    @JoinTable(
+            name = "project_tags",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<Tag> tags;
 
     @Enumerated(EnumType.STRING)
     private ProjectStatus status;

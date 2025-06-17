@@ -2,18 +2,12 @@ package com.techcmr.tech_cmr.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.techcmr.tech_cmr.enums.TaskStatus;
 import com.techcmr.tech_cmr.enums.TaskPriority;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 @Entity
 public class Task {
@@ -25,9 +19,24 @@ public class Task {
     private String title;
     private String description;
 
+    // Relazione many to one con progetto, un solo progetto
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;
+
+    // Relazione many to many con tag
+    @ManyToMany
+    @JoinTable(
+            name = "task_tags",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private List<Tag> tags;
+
+    // Relazione Many to one con section
+    @ManyToOne
+    @JoinColumn(name = "section_id")
+    private Section section;
 
     @Enumerated(EnumType.STRING)
     private TaskStatus status;
