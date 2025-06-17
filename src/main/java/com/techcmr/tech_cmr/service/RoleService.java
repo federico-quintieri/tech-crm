@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RoleService {
@@ -15,6 +16,7 @@ public class RoleService {
     @Autowired
     private RoleRepository roleRepository;
 
+    // Trova tutti i ruoli
     public List<Role> findAllRoles() {
         List<Role> roles = roleRepository.findAll();
 
@@ -25,5 +27,27 @@ public class RoleService {
 
         // Altrimenti restituisco i ruoli
         return roles;
+    }
+
+    // Trova ruoli che contengono nome/stringa
+    public Optional<Role> findRoleByName(String name) {
+
+        Optional<Role> role = roleRepository.findByNameContaining(name);
+
+        if (role.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found");
+        }
+
+        return role;
+    }
+
+    // Crea nuovo ruolo
+    public Role createRole(Role role) {
+        return roleRepository.save(role);
+    }
+
+    // Modifica ruolo
+    public Role updateRole(Role role) {
+        return roleRepository.save(role);
     }
 }
