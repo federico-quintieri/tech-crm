@@ -18,10 +18,14 @@ public interface ProjectMapper {
     @Mapping(source = "tags", target = "tagIds")
     ProjectDTO toDto(Project project);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "team", expression = "java(teamFromId(dto.getTeamId()))")
     @Mapping(target = "workspace", expression = "java(workspaceFromId(dto.getWorkspaceId()))")
     @Mapping(target = "tags", expression = "java(tagsFromIds(dto.getTagIds()))")
     Project toEntity(ProjectDTO dto);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDto(ProjectDTO dto, @MappingTarget Project entity);
 
     // --- Default methods per conversioni personalizzate ---
 
