@@ -1,5 +1,7 @@
 package com.techcmr.tech_cmr.service;
 
+import com.techcmr.tech_cmr.dto.RoleDTO;
+import com.techcmr.tech_cmr.mapper.RoleMapper;
 import com.techcmr.tech_cmr.model.Role;
 import com.techcmr.tech_cmr.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,21 +18,25 @@ public class RoleService {
     @Autowired
     private RoleRepository roleRepository;
 
-    // Trova tutti i ruoli
-    public List<Role> findAllRoles() {
+    /**
+     * Restituisce tutti i ruoli esistenti sotto forma di DTO.
+     * Se la lista è vuota, lancia un'eccezione 404.
+     */
+    public List<RoleDTO> findAllRoles() {
         List<Role> roles = roleRepository.findAll();
 
-        // Restituisco un eccezione not found + message se non trovo i ruoli
         if (roles.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Roles not found");
         }
 
-        // Altrimenti restituisco i ruoli
-        return roles;
+        // Converte la lista di entità Role in lista di DTO
+        return roles.stream()
+                .map(RoleMapper::toDTO)
+                .toList();
     }
 
     // Trova ruoli che contengono nome/stringa
-    public Optional<Role> findRoleByName(String name) {
+    public Optional<RoleDTO> findRoleByName(String name) {
 
         Optional<Role> role = roleRepository.findByNameContaining(name);
 
@@ -38,16 +44,32 @@ public class RoleService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found");
         }
 
-        return role;
+        // Converte Optional<Role> in Optional<RoleDTO>
+        return role.map(RoleMapper::toDTO);
     }
 
     // Crea nuovo ruolo
-    public Role createRole(Role role) {
-        return roleRepository.save(role);
+    public RoleDTO createRole(RoleDTO roleDTO) {
+        Role role = RoleMapper.toEntity(roleDTO); // converte DTO ad entity
+        Role saved = roleRepository.save(role); // salva nel DB
+        return RoleMapper.toDTO(saved);
     }
 
     // Modifica ruolo
-    public Role updateRole(Role role) {
-        return roleRepository.save(role);
+    public RoleDTO updateRole(RoleDTO roleDTO) {
+        // Verifica che il ruolo esista prima di aggiornare
+        roleRepository.findById(roleDTO.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found"));
+
+        Role role = RoleMapper.toEntity(roleDTO); // Converto DTO a entity
+        Role saved = roleRepository.save(role); // Salvo entity nel db
+        return RoleMapper.toDTO(saved); // Converto entity in dto e la ritorno
+    }
+
+    // Cancello ruolo
+    public void deleteRole(Long id) {
+        roleRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found"));
+        roleRepository.deleteById(id);
     }
 }
