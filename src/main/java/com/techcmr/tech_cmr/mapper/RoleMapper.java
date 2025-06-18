@@ -1,26 +1,16 @@
 package com.techcmr.tech_cmr.mapper;
 
+
 import com.techcmr.tech_cmr.dto.RoleDTO;
 import com.techcmr.tech_cmr.model.Role;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
-/**
- * RoleMapper gestisce la conversione tra l'entità Role e il DTO RoleDTO.
- * Questo separa la logica di mapping dal resto dell'applicazione,
- * rendendola riutilizzabile e facilmente testabile.
- */
-public class RoleMapper {
+@Mapper(componentModel = "spring")
+public interface RoleMapper {
 
-    // Converte Role (Entity) in RoleDTO
-    public static RoleDTO toDTO(Role role) {
-        return new RoleDTO(role.getId(), role.getName());
-    }
+    RoleDTO toDTO(Role role);
 
-    // Converte RoleDTO in Role (Entity)
-    public static Role toEntity(RoleDTO roleDTO) {
-        Role role = new Role();
-        role.setId(roleDTO.getId());
-        role.setName(roleDTO.getName());
-        return role;
-    }
+    Role toEntity(RoleDTO roleDTO);
 
 }

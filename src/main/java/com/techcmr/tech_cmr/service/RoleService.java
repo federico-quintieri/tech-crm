@@ -18,6 +18,9 @@ public class RoleService {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private RoleMapper roleMapper;
+
     /**
      * Restituisce tutti i ruoli esistenti sotto forma di DTO.
      * Se la lista è vuota, lancia un'eccezione 404.
@@ -31,28 +34,30 @@ public class RoleService {
 
         // Converte la lista di entità Role in lista di DTO
         return roles.stream()
-                .map(RoleMapper::toDTO)
+                .map(roleMapper::toDTO)
                 .toList();
     }
 
     // Trova ruoli che contengono nome/stringa
-    public Optional<RoleDTO> findRoleByName(String name) {
+    public List<RoleDTO> findRolesByName(String name) {
 
-        Optional<Role> role = roleRepository.findByNameContaining(name);
+        List<Role> roles = roleRepository.findByNameContaining(name);
 
-        if (role.isEmpty()) {
+        if (roles.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found");
         }
 
         // Converte Optional<Role> in Optional<RoleDTO>
-        return role.map(RoleMapper::toDTO);
+        return roles.stream()
+                .map(roleMapper::toDTO)
+                .toList();
     }
 
     // Crea nuovo ruolo
     public RoleDTO createRole(RoleDTO roleDTO) {
-        Role role = RoleMapper.toEntity(roleDTO); // converte DTO ad entity
+        Role role = roleMapper.toEntity(roleDTO); // converte DTO ad entity
         Role saved = roleRepository.save(role); // salva nel DB
-        return RoleMapper.toDTO(saved);
+        return roleMapper.toDTO(saved);
     }
 
     // Modifica ruolo
@@ -61,9 +66,9 @@ public class RoleService {
         roleRepository.findById(roleDTO.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found"));
 
-        Role role = RoleMapper.toEntity(roleDTO); // Converto DTO a entity
+        Role role = roleMapper.toEntity(roleDTO); // Converto DTO a entity
         Role saved = roleRepository.save(role); // Salvo entity nel db
-        return RoleMapper.toDTO(saved); // Converto entity in dto e la ritorno
+        return roleMapper.toDTO(saved); // Converto entity in dto e la ritorno
     }
 
     // Cancello ruolo

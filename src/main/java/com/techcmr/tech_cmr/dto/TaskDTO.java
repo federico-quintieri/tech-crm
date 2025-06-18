@@ -1,54 +1,30 @@
-package com.techcmr.tech_cmr.model;
+package com.techcmr.tech_cmr.dto;
+
+import com.techcmr.tech_cmr.enums.TaskPriority;
+import com.techcmr.tech_cmr.enums.TaskStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.techcmr.tech_cmr.enums.TaskStatus;
-import com.techcmr.tech_cmr.enums.TaskPriority;
+public class TaskDTO {
 
-import jakarta.persistence.*;
-
-@Entity
-public class Task {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String title;
     private String description;
 
-    // Relazione many to one con progetto, un solo progetto
-    @ManyToOne
-    @JoinColumn(name = "project_id")
-    private Project project;
+    private Long projectId;
+    private List<Long> tagIds;
+    private Long sectionId;
 
-    // Relazione many to many con tag
-    @ManyToMany
-    @JoinTable(
-            name = "task_tags",
-            joinColumns = @JoinColumn(name = "task_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
-    private List<Tag> tags;
-
-    // Relazione Many to one con section
-    @ManyToOne
-    @JoinColumn(name = "section_id")
-    private Section section;
-
-    @Enumerated(EnumType.STRING)
     private TaskStatus status;
-
-    @Enumerated(EnumType.STRING)
     private TaskPriority priority;
 
     private LocalDateTime createdAt;
     private LocalDate dueDate;
     private LocalDateTime completedAt;
 
-    // Getters and setters
+    // Getters e setters
 
     public Long getId() {
         return id;
@@ -74,12 +50,28 @@ public class Task {
         this.description = description;
     }
 
-    public Project getProject() {
-        return project;
+    public Long getProjectId() {
+        return projectId;
     }
 
-    public void setProject(Project project) {
-        this.project = project;
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
+    }
+
+    public List<Long> getTagIds() {
+        return tagIds;
+    }
+
+    public void setTagIds(List<Long> tagIds) {
+        this.tagIds = tagIds;
+    }
+
+    public Long getSectionId() {
+        return sectionId;
+    }
+
+    public void setSectionId(Long sectionId) {
+        this.sectionId = sectionId;
     }
 
     public TaskStatus getStatus() {
@@ -120,21 +112,5 @@ public class Task {
 
     public void setCompletedAt(LocalDateTime completedAt) {
         this.completedAt = completedAt;
-    }
-
-    public List<Tag> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<Tag> tags) {
-        this.tags = tags;
-    }
-
-    public Section getSection() {
-        return section;
-    }
-
-    public void setSection(Section section) {
-        this.section = section;
     }
 }

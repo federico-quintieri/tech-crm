@@ -1,46 +1,22 @@
-package com.techcmr.tech_cmr.model;
+package com.techcmr.tech_cmr.dto;
+
+import com.techcmr.tech_cmr.enums.ProjectStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.techcmr.tech_cmr.enums.ProjectStatus;
+public class ProjectDTO {
 
-import jakarta.persistence.*;
-
-@Entity
-public class Project {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
     private String description;
 
-    // Relazione molti a uno con team
-    @ManyToOne
-    @JoinColumn(name = "team_id")
-    private Team team;
+    private Long teamId;
+    private Long workspaceId;
 
-    // Relazione uno a molti con project
-    @OneToMany(mappedBy = "project")
-    private List<Task> tasks;
+    private List<Long> tagIds; // solo ID dei tag
 
-    // Relazione molti a uno con workspace
-    @ManyToOne
-    private Workspace workspace;
-
-    // Relazione molti a molti con tags
-    @ManyToMany
-    @JoinTable(
-            name = "project_tags",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
-    private List<Tag> tags;
-
-    @Enumerated(EnumType.STRING)
     private ProjectStatus status;
 
     private LocalDate startDate;
@@ -49,7 +25,7 @@ public class Project {
 
     private LocalDateTime createdAt;
 
-    // getters and setters
+    // Getters e Setters
 
     public Long getId() {
         return id;
@@ -75,28 +51,28 @@ public class Project {
         this.description = description;
     }
 
-    public Team getTeam() {
-        return team;
+    public Long getTeamId() {
+        return teamId;
     }
 
-    public void setTeam(Team team) {
-        this.team = team;
+    public void setTeamId(Long teamId) {
+        this.teamId = teamId;
     }
 
-    public List<Task> getTasks() {
-        return tasks;
+    public Long getWorkspaceId() {
+        return workspaceId;
     }
 
-    public void setTasks(List<Task> tasks) {
-        this.tasks = tasks;
+    public void setWorkspaceId(Long workspaceId) {
+        this.workspaceId = workspaceId;
     }
 
-    public Workspace getWorkspace() {
-        return workspace;
+    public List<Long> getTagIds() {
+        return tagIds;
     }
 
-    public void setWorkspace(Workspace workspace) {
-        this.workspace = workspace;
+    public void setTagIds(List<Long> tagIds) {
+        this.tagIds = tagIds;
     }
 
     public ProjectStatus getStatus() {
@@ -137,13 +113,5 @@ public class Project {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public List<Tag> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<Tag> tags) {
-        this.tags = tags;
     }
 }

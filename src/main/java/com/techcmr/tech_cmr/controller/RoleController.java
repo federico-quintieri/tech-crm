@@ -38,14 +38,14 @@ public class RoleController {
 
     // READ
     @GetMapping("/{name}")
-    public ResponseEntity<RoleDTO> getRoleByName(@PathVariable String name) {
-        Optional<RoleDTO> role = roleService.findRoleByName(name);
+    public ResponseEntity<List<RoleDTO>> getRoleByName(@PathVariable String name) {
+        List<RoleDTO> roles = roleService.findRolesByName(name);
 
-        if (role.isEmpty()) {
+        if (roles.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(role.get());
+        return ResponseEntity.ok(roles);
     }
 
     // UPDATE
