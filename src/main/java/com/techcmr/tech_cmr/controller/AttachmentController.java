@@ -48,10 +48,10 @@ public class AttachmentController {
 
     // UPDATE
     @PutMapping("/update/{id}")
-    public ResponseEntity<AttachmentDTO> updateAttachmentById(@PathVariable Long id, @RequestBody AttachmentDTO attachmentDTO) {
+    public ResponseEntity<String> updateAttachmentById(@PathVariable Long id, @RequestBody AttachmentDTO attachmentDTO) {
         attachmentDTO.setId(id);
         AttachmentDTO newAttachmentDTO = attachmentService.saveAttachment(attachmentDTO);
-        return ResponseEntity.ok(newAttachmentDTO);
+        return ResponseEntity.ok("Attachment updated successfully");
     }
 
     // DELETE

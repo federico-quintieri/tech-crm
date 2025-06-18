@@ -1,12 +1,13 @@
 package com.techcmr.tech_cmr.mapper;
 
+import com.techcmr.tech_cmr.dto.TagDTO;
 import com.techcmr.tech_cmr.dto.WorkspaceDTO;
+import com.techcmr.tech_cmr.model.Tag;
 import com.techcmr.tech_cmr.model.Team;
 import com.techcmr.tech_cmr.model.Project;
 import com.techcmr.tech_cmr.model.Workspace;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,9 +19,13 @@ public interface WorkspaceMapper {
     @Mapping(source = "projects", target = "projectIds")
     WorkspaceDTO toDto(Workspace workspace);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "teams", expression = "java(teamsFromIds(dto.getTeamIds()))")
     @Mapping(target = "projects", expression = "java(projectsFromIds(dto.getProjectIds()))")
     Workspace toEntity(WorkspaceDTO dto);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDto(WorkspaceDTO dto, @MappingTarget Workspace entity);
 
     default List<Long> teamsToIds(List<Team> teams) {
         if (teams == null) return null;

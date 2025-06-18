@@ -1,11 +1,12 @@
 package com.techcmr.tech_cmr.mapper;
 
+import com.techcmr.tech_cmr.dto.TagDTO;
 import com.techcmr.tech_cmr.dto.TeamDTO;
 import com.techcmr.tech_cmr.model.Project;
+import com.techcmr.tech_cmr.model.Tag;
 import com.techcmr.tech_cmr.model.Team;
 import com.techcmr.tech_cmr.model.Workspace;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,9 +18,13 @@ public interface TeamMapper {
     @Mapping(source = "workspace.id", target = "workspaceId")
     TeamDTO toDto(Team team);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "projects", expression = "java(projectsFromIds(dto.getProjectIds()))")
     @Mapping(target = "workspace", expression = "java(workspaceFromId(dto.getWorkspaceId()))")
     Team toEntity(TeamDTO dto);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDto(TeamDTO team, @MappingTarget Team entity);
 
     // Helper per conversione lista Project -> lista ID
     default List<Long> projectsToIds(List<Project> projects) {

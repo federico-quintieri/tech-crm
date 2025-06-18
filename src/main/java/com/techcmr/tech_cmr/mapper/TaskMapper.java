@@ -1,12 +1,12 @@
 package com.techcmr.tech_cmr.mapper;
 
+import com.techcmr.tech_cmr.dto.TagDTO;
 import com.techcmr.tech_cmr.dto.TaskDTO;
 import com.techcmr.tech_cmr.model.Project;
 import com.techcmr.tech_cmr.model.Section;
 import com.techcmr.tech_cmr.model.Tag;
 import com.techcmr.tech_cmr.model.Task;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,10 +19,14 @@ public interface TaskMapper {
     @Mapping(source = "tags", target = "tagIds")
     TaskDTO toDto(Task task);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "project", expression = "java(projectFromId(dto.getProjectId()))")
     @Mapping(target = "section", expression = "java(sectionFromId(dto.getSectionId()))")
     @Mapping(target = "tags", expression = "java(tagsFromIds(dto.getTagIds()))")
     Task toEntity(TaskDTO dto);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDto(TaskDTO task, @MappingTarget Task entity);
 
     // Metodi helper per convertire liste di entità e id
 

@@ -2,6 +2,7 @@ package com.techcmr.tech_cmr.mapper;
 
 import com.techcmr.tech_cmr.dto.SectionDTO;
 import com.techcmr.tech_cmr.model.Project;
+import com.techcmr.tech_cmr.model.Role;
 import com.techcmr.tech_cmr.model.Section;
 import com.techcmr.tech_cmr.model.Task;
 import org.mapstruct.*;
@@ -16,9 +17,13 @@ public interface SectionMapper {
     @Mapping(source = "tasks", target = "taskIds")
     SectionDTO toDto(Section section);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "project", expression = "java(projectFromId(dto.getProjectId()))")
     @Mapping(target = "tasks", expression = "java(tasksFromIds(dto.getTaskIds()))")
     Section toEntity(SectionDTO dto);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDto(SectionDTO section, @MappingTarget Section entity);
 
     // --- Default methods ---
 

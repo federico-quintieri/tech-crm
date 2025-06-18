@@ -1,6 +1,7 @@
 package com.techcmr.tech_cmr.mapper;
 
 import com.techcmr.tech_cmr.dto.AttachmentDTO;
+import com.techcmr.tech_cmr.dto.ProjectDTO;
 import com.techcmr.tech_cmr.model.Attachment;
 import com.techcmr.tech_cmr.model.Project;
 import com.techcmr.tech_cmr.model.Task;
@@ -17,6 +18,9 @@ public interface AttachmentMapper {
     @Mapping(target = "task", expression = "java(taskFromId(dto.getTaskId()))")
     @Mapping(target = "project", expression = "java(projectFromId(dto.getProjectId()))")
     Attachment toEntity(AttachmentDTO dto);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDto(AttachmentDTO dto, @MappingTarget Attachment entity);
 
     default Task taskFromId(Long id) {
         if (id == null) {

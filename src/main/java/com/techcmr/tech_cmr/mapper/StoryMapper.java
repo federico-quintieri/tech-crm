@@ -1,10 +1,7 @@
 package com.techcmr.tech_cmr.mapper;
 
 import com.techcmr.tech_cmr.dto.StoryDTO;
-import com.techcmr.tech_cmr.model.Project;
-import com.techcmr.tech_cmr.model.Story;
-import com.techcmr.tech_cmr.model.Task;
-import com.techcmr.tech_cmr.model.User;
+import com.techcmr.tech_cmr.model.*;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
@@ -15,10 +12,14 @@ public interface StoryMapper {
     @Mapping(source = "project.id", target = "projectId")
     StoryDTO toDto(Story story);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "author", expression = "java(userFromId(dto.getAuthorId()))")
     @Mapping(target = "task", expression = "java(taskFromId(dto.getTaskId()))")
     @Mapping(target = "project", expression = "java(projectFromId(dto.getProjectId()))")
     Story toEntity(StoryDTO dto);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDto(StoryDTO story, @MappingTarget Story entity);
 
     // Metodi di utilità per creare riferimenti con solo ID
 

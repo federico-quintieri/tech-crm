@@ -2,10 +2,10 @@ package com.techcmr.tech_cmr.mapper;
 
 import com.techcmr.tech_cmr.dto.TagDTO;
 import com.techcmr.tech_cmr.model.Project;
+import com.techcmr.tech_cmr.model.Role;
 import com.techcmr.tech_cmr.model.Tag;
 import com.techcmr.tech_cmr.model.Task;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,9 +17,13 @@ public interface TagMapper {
     @Mapping(source = "projects", target = "projectIds")
     TagDTO toDto(Tag tag);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "tasks", expression = "java(tasksFromIds(dto.getTaskIds()))")
     @Mapping(target = "projects", expression = "java(projectsFromIds(dto.getProjectIds()))")
     Tag toEntity(TagDTO dto);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromDto(TagDTO tag, @MappingTarget Tag entity);
 
     // Default methods per convertire liste entità <-> liste di id
 
