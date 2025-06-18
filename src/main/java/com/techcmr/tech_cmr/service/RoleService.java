@@ -53,6 +53,16 @@ public class RoleService {
                 .toList();
     }
 
+    // Trova ruolo in base ad id
+    public RoleDTO findRoleById(Long id) {
+        Optional<Role> role = roleRepository.findById(id);
+
+        if (!role.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found");
+        }
+        return roleMapper.toDTO(role.get());
+    }
+
     // Crea nuovo ruolo
     public RoleDTO createRole(RoleDTO roleDTO) {
         Role role = roleMapper.toEntity(roleDTO); // converte DTO ad entity

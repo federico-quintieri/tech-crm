@@ -13,6 +13,7 @@ public interface AttachmentMapper {
     @Mapping(source = "project.id", target = "projectId")
     AttachmentDTO toDto(Attachment attachment);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "task", expression = "java(taskFromId(dto.getTaskId()))")
     @Mapping(target = "project", expression = "java(projectFromId(dto.getProjectId()))")
     Attachment toEntity(AttachmentDTO dto);

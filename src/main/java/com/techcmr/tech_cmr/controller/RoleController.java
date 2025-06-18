@@ -37,7 +37,7 @@ public class RoleController {
     }
 
     // READ
-    @GetMapping("/{name}")
+    @GetMapping("/name/{name}")
     public ResponseEntity<List<RoleDTO>> getRoleByName(@PathVariable String name) {
         List<RoleDTO> roles = roleService.findRolesByName(name);
 
@@ -46,6 +46,20 @@ public class RoleController {
         }
 
         return ResponseEntity.ok(roles);
+    }
+
+    // READ SHOW
+    @GetMapping("/id/{id}")
+    public ResponseEntity<RoleDTO> getRoleById(@PathVariable Long id) {
+
+        RoleDTO roleDTO = roleService.findRoleById(id);
+
+        if (roleDTO == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(roleDTO);
+
     }
 
     // UPDATE
