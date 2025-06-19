@@ -15,38 +15,41 @@ public class ProjectController {
     @Autowired
     private ProjectService projectService;
 
-    // READ all
+    // GET all projects
     @GetMapping
-    public ResponseEntity<List<ProjectDTO>> findAllProjects() {
-        return ResponseEntity.ok(projectService.findAllProjects());
+    public ResponseEntity<List<ProjectDTO>> getAllProjects() {
+        List<ProjectDTO> projects = projectService.findAllProjects();
+        return projects.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(projects);
     }
 
-    // READ 1
+    // GET project by ID
     @GetMapping("/{id}")
-    public ResponseEntity<ProjectDTO> findProjectById(@PathVariable Long id) {
-        return ResponseEntity.ok(projectService.findProjectById(id));
+    public ResponseEntity<ProjectDTO> getProjectById(@PathVariable Long id) {
+        ProjectDTO projectDTO = projectService.findProjectById(id);
+        return ResponseEntity.ok(projectDTO);
     }
 
-    // CREATE
-    @PostMapping("/create")
+    // POST create new project
+    @PostMapping
     public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO projectDTO) {
-        return ResponseEntity.ok(projectService.createProject(projectDTO));
+        ProjectDTO createdProject = projectService.createProject(projectDTO);
+        return ResponseEntity.status(201).body(createdProject);
     }
 
-    // UPDATE
-    @PutMapping("/update/{id}")
-    public ResponseEntity<String> updateProject(@PathVariable Long id, @RequestBody ProjectDTO projectDTO) {
-        // Setto id nell'oggetto body
-        projectDTO.setId(id);
+    // PUT update existing project
+    @PutMapping("/{id}")
+    public ResponseEntity<ProjectDTO> updateProject(@PathVariable Long id, @RequestBody ProjectDTO projectDTO) {
         projectService.updateProject(id, projectDTO);
-        return ResponseEntity.ok("Project updated successfully");
+        return ResponseEntity.ok().build(); // oppure puoi restituire project aggiornato, se preferisci
     }
 
-    // DELETE
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteProject(@PathVariable Long id) {
+    // DELETE project
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
-        return ResponseEntity.ok("Project deleted");
+        return ResponseEntity.noContent().build();
     }
 
 }

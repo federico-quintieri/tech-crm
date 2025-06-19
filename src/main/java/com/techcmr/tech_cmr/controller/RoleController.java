@@ -2,6 +2,7 @@ package com.techcmr.tech_cmr.controller;
 
 import com.techcmr.tech_cmr.dto.RoleDTO;
 import com.techcmr.tech_cmr.service.RoleService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,61 +20,61 @@ public class RoleController {
     @Autowired
     private RoleService roleService;
 
-    // CREATE
-    @PostMapping("/create")
-    public ResponseEntity<RoleDTO> createRole(@RequestBody RoleDTO roleDTO) {
-        RoleDTO createdRole = roleService.createRole(roleDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdRole);
-    }
-
-    // READ
+    // GET all roles
     @GetMapping
     public ResponseEntity<List<RoleDTO>> getAllRoles() {
         List<RoleDTO> roles = roleService.findAllRoles();
-        if (roles.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(roles);
+        return roles.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(roles);
     }
 
-    // READ
-    @GetMapping("/name/{name}")
-    public ResponseEntity<List<RoleDTO>> getRoleByName(@PathVariable String name) {
+    // GET roles by name (filter)
+    @GetMapping("/search")
+    public ResponseEntity<List<RoleDTO>> getRolesByName(@RequestParam("name") String name) {
         List<RoleDTO> roles = roleService.findRolesByName(name);
-
-        if (roles.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok(roles);
+        return roles.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(roles);
     }
 
-    // READ SHOW
-    @GetMapping("/id/{id}")
+    // GET role by ID
+    @GetMapping("/{id}")
     public ResponseEntity<RoleDTO> getRoleById(@PathVariable Long id) {
-
-        RoleDTO roleDTO = roleService.findRoleById(id);
-
-        if (roleDTO == null) {
+        try {
+            RoleDTO role = roleService.findRoleById(id);
+            return ResponseEntity.ok(role);
+        } catch (EntityNotFoundException ex) {
             return ResponseEntity.notFound().build();
         }
-
-        return ResponseEntity.ok(roleDTO);
-
     }
 
-    // UPDATE
+    // POST create new role
+    @PostMapping
+    public ResponseEntity<RoleDTO> createRole(@RequestBody RoleDTO roleDTO) {
+        RoleDTO created = roleService.createRole(roleDTO);
+        return ResponseEntity.status(201).body(created);
+    }
+
+    // PUT update existing role
     @PutMapping("/{id}")
     public ResponseEntity<RoleDTO> updateRole(@PathVariable Long id, @RequestBody RoleDTO roleDTO) {
-        roleDTO.setId(id); // Imposta l'id ricevuto da url nell'oggetto body DTO
-        RoleDTO updatedRole = roleService.updateRole(roleDTO);
-        return ResponseEntity.ok(updatedRole);
+        try {
+            RoleDTO updated = roleService.updateRole(id, roleDTO);
+            return ResponseEntity.ok(updated);
+        } catch (EntityNotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    // DELETE
+    // DELETE role
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteRole(@PathVariable Long id) {
-        roleService.deleteRole(id);
-        return ResponseEntity.ok("Role deleted successfully");
+    public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
+        try {
+            roleService.deleteRole(id);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

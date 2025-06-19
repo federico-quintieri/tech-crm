@@ -3,7 +3,6 @@ package com.techcmr.tech_cmr.controller;
 import com.techcmr.tech_cmr.dto.AttachmentDTO;
 import com.techcmr.tech_cmr.service.AttachmentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,49 +15,42 @@ public class AttachmentController {
     @Autowired
     private AttachmentService attachmentService;
 
-    // READ
+    // GET all
     @GetMapping
     public ResponseEntity<List<AttachmentDTO>> getAllAttachments() {
         List<AttachmentDTO> attachments = attachmentService.findAllAttachments();
-        if (attachments.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(attachments, HttpStatus.OK);
+        return attachments.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(attachments);
     }
 
-    // READ
+    // GET by id
     @GetMapping("/{id}")
-    public ResponseEntity<AttachmentDTO> getAttachmentById(@PathVariable("id") long id) {
+    public ResponseEntity<AttachmentDTO> getAttachmentById(@PathVariable Long id) {
         AttachmentDTO attachmentDTO = attachmentService.findAttachmentById(id);
-        if (attachmentDTO == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(attachmentDTO, HttpStatus.OK);
+        return ResponseEntity.ok(attachmentDTO); // Se non trovato, il service lancia eccezione
     }
 
-    // CREATE
-    @PostMapping("/create")
+    // POST create
+    @PostMapping
     public ResponseEntity<AttachmentDTO> createAttachment(@RequestBody AttachmentDTO attachmentDTO) {
-        if (attachmentDTO == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        AttachmentDTO newAttachmentDTO = attachmentService.saveAttachment(attachmentDTO);
-        return ResponseEntity.ok(newAttachmentDTO);
+        AttachmentDTO created = attachmentService.saveAttachment(attachmentDTO);
+        return ResponseEntity.status(201).body(created);
     }
 
-    // UPDATE
-    @PutMapping("/update/{id}")
-    public ResponseEntity<String> updateAttachmentById(@PathVariable Long id, @RequestBody AttachmentDTO attachmentDTO) {
+    // PUT update
+    @PutMapping("/{id}")
+    public ResponseEntity<AttachmentDTO> updateAttachment(@PathVariable Long id, @RequestBody AttachmentDTO attachmentDTO) {
         attachmentDTO.setId(id);
-        AttachmentDTO newAttachmentDTO = attachmentService.saveAttachment(attachmentDTO);
-        return ResponseEntity.ok("Attachment updated successfully");
+        AttachmentDTO updated = attachmentService.saveAttachment(attachmentDTO);
+        return ResponseEntity.ok(updated);
     }
 
     // DELETE
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteAttachmentById(@PathVariable Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAttachment(@PathVariable Long id) {
         attachmentService.deleteAttachement(id);
-        return new ResponseEntity<>("Attachment deleted successfully", HttpStatus.OK);
+        return ResponseEntity.noContent().build();
     }
 
 }
