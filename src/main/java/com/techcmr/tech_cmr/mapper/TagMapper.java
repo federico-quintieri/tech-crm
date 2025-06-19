@@ -17,40 +17,23 @@ public interface TagMapper {
     TagDTO toDto(Tag tag);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "tasks", expression = "java(mapIdsToTasks(dto.getTaskIds()))")
-    @Mapping(target = "projects", expression = "java(mapIdsToProjects(dto.getProjectIds()))")
+    @Mapping(target = "tasks", ignore = true)  // Ignora qui!
+    @Mapping(target = "projects", ignore = true)  // Ignora qui!
     Tag toEntity(TagDTO dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "tasks", ignore = true)
+    @Mapping(target = "projects", ignore = true)
     void updateEntityFromDto(TagDTO dto, @MappingTarget Tag entity);
 
-    // Helpers
-
+    // Helpers rimangono per toDto (map IDs from Entity)
     default Set<Long> mapTasksToIds(Set<Task> tasks) {
         if (tasks == null) return null;
         return tasks.stream().map(Task::getId).collect(Collectors.toSet());
     }
 
-    default Set<Task> mapIdsToTasks(Set<Long> ids) {
-        if (ids == null) return null;
-        return ids.stream().map(id -> {
-            Task t = new Task();
-            t.setId(id);
-            return t;
-        }).collect(Collectors.toSet());
-    }
-
     default Set<Long> mapProjectsToIds(Set<Project> projects) {
         if (projects == null) return null;
         return projects.stream().map(Project::getId).collect(Collectors.toSet());
-    }
-
-    default Set<Project> mapIdsToProjects(Set<Long> ids) {
-        if (ids == null) return null;
-        return ids.stream().map(id -> {
-            Project p = new Project();
-            p.setId(id);
-            return p;
-        }).collect(Collectors.toSet());
     }
 }
