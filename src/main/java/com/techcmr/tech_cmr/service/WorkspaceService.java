@@ -33,8 +33,8 @@ public class WorkspaceService {
     // CREATE
     public WorkspaceDTO createWorkspace(WorkspaceDTO workspaceDTO) {
         Workspace workspace = workspaceMapper.toEntity(workspaceDTO);
-        workspaceRepository.save(workspace);
-        return workspaceMapper.toDto(workspace);
+        Workspace savedWorkspace = workspaceRepository.save(workspace);
+        return workspaceMapper.toDto(savedWorkspace);
     }
 
     // UPDATE

@@ -36,9 +36,9 @@ public class StoryService {
         // Da DTO ad entity
         Story story = storyMapper.toEntity(storyDTO);
         // Salvo story
-        storyRepository.save(story);
+        Story savedStory = storyRepository.save(story);
         // La rimetto ad entity per il controller
-        return storyMapper.toDto(story);
+        return storyMapper.toDto(savedStory);
     }
 
     // UPDATE

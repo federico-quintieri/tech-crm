@@ -33,8 +33,8 @@ public class TagService {
     // CREATE
     public TagDTO createTag(TagDTO tagDTO) {
         Tag tag = tagMapper.toEntity(tagDTO);
-        tag = tagRepository.save(tag);
-        return tagMapper.toDto(tag);
+        Tag savedTag = tagRepository.save(tag);
+        return tagMapper.toDto(savedTag);
     }
 
     // UPDATE

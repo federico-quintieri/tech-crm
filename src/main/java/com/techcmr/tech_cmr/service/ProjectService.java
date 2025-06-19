@@ -22,27 +22,20 @@ public class ProjectService {
 
     // READ
     public List<ProjectDTO> findAllProjects() {
-        List<Project> projects = projectRepository.findAll();
-        if (projects.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NO_CONTENT);
-        }
-        return projects.stream().map(projectMapper::toDto).toList();
-
+        return projectRepository.findAll().stream().map(projectMapper::toDto).toList();
     }
 
     // READ
     public ProjectDTO findProjectById(Long id) {
-        // Prendo il progetto in base ad id altrimenti lancio un eccezione not Found
         Project project = projectRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-// Una volta trovato lo ritorno tramutandolo in DTO per il controller
         return projectMapper.toDto(project);
     }
 
     // CREATE
     public ProjectDTO createProject(ProjectDTO projectDTO) {
-        Project project = projectMapper.toEntity(projectDTO); // Converto il progetto preso da DTO a entity
-        Project savedProject = projectRepository.save(project); // Salvo l'entity
-        return projectMapper.toDto(savedProject); // Ritorno il DTO
+        Project project = projectMapper.toEntity(projectDTO);
+        Project savedProject = projectRepository.save(project);
+        return projectMapper.toDto(savedProject);
     }
 
     // UPDATE

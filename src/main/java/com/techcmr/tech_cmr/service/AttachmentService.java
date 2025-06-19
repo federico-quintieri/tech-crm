@@ -7,10 +7,8 @@ import com.techcmr.tech_cmr.repository.AttachmentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AttachmentService {
@@ -23,26 +21,13 @@ public class AttachmentService {
 
     // Trova tutti gli attachment
     public List<AttachmentDTO> findAllAttachments() {
-        List<Attachment> attachments = attachmentRepository.findAll();
-
-        if (attachments.isEmpty()) {
-            throw new EntityNotFoundException("No attachments found");
-        }
-
-        return attachments.stream().
-                map(attachmentMapper::toDto).
-                toList();
-
+        return attachmentRepository.findAll().stream().map(attachmentMapper::toDto).toList();
     }
 
     // Trova un attachment in base ad id
     public AttachmentDTO findAttachmentById(Long id) {
-        Optional<Attachment> attachment = attachmentRepository.findById(id);
-
-        if (attachment.isEmpty()) {
-            throw new EntityNotFoundException("Attachment not found");
-        }
-        return attachmentMapper.toDto(attachment.get());
+        Attachment attachment = attachmentRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Attachment not found"));
+        return attachmentMapper.toDto(attachment);
     }
 
     // Crea attachment

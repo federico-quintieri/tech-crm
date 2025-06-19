@@ -33,8 +33,8 @@ public class TeamService {
     // CREATE
     public TeamDTO createTeam(TeamDTO teamDTO) {
         Team team = teamMapper.toEntity(teamDTO);
-        team = teamRepository.save(team);
-        return teamMapper.toDto(team);
+        Team savedTeam = teamRepository.save(team);
+        return teamMapper.toDto(savedTeam);
     }
 
     // UPDATE

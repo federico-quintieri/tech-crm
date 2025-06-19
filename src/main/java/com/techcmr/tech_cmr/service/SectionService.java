@@ -34,8 +34,8 @@ public class SectionService {
     // CREATE
     public SectionDTO createSection(SectionDTO sectionDTO) {
         Section section = sectionMapper.toEntity(sectionDTO);
-        sectionRepository.save(section);
-        return sectionMapper.toDto(section);
+        Section savedSection = sectionRepository.save(section);
+        return sectionMapper.toDto(savedSection);
     }
 
     // UPDATE
