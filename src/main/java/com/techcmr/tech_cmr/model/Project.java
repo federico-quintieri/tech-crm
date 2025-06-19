@@ -3,6 +3,7 @@ package com.techcmr.tech_cmr.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import com.techcmr.tech_cmr.enums.ProjectStatus;
 
@@ -25,7 +26,7 @@ public class Project {
 
     // Relazione uno a molti con project
     @OneToMany(mappedBy = "project")
-    private List<Task> tasks;
+    private Set<Task> tasks;
 
     // Relazione molti a uno con workspace
     @ManyToOne
@@ -38,7 +39,7 @@ public class Project {
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    private List<Tag> tags;
+    private Set<Tag> tags;
 
     @Enumerated(EnumType.STRING)
     private ProjectStatus status;
@@ -83,11 +84,11 @@ public class Project {
         this.team = team;
     }
 
-    public List<Task> getTasks() {
+    public Set<Task> getTasks() {
         return tasks;
     }
 
-    public void setTasks(List<Task> tasks) {
+    public void setTasks(Set<Task> tasks) {
         this.tasks = tasks;
     }
 
@@ -139,11 +140,11 @@ public class Project {
         this.createdAt = createdAt;
     }
 
-    public List<Tag> getTags() {
+    public Set<Tag> getTags() {
         return tags;
     }
 
-    public void setTags(List<Tag> tags) {
+    public void setTags(Set<Tag> tags) {
         this.tags = tags;
     }
 }

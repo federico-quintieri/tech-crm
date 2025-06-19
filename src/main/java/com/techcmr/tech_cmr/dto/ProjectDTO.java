@@ -1,10 +1,12 @@
 package com.techcmr.tech_cmr.dto;
 
 import com.techcmr.tech_cmr.enums.ProjectStatus;
+import com.techcmr.tech_cmr.model.Tag;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public class ProjectDTO {
 
@@ -15,7 +17,7 @@ public class ProjectDTO {
     private Long teamId;
     private Long workspaceId;
 
-    private List<Long> tagIds; // solo ID dei tag
+    private Set<Long> tagIds; // solo ID dei tag
 
     private ProjectStatus status;
 
@@ -67,11 +69,11 @@ public class ProjectDTO {
         this.workspaceId = workspaceId;
     }
 
-    public List<Long> getTagIds() {
+    public Set<Long> getTagIds() {
         return tagIds;
     }
 
-    public void setTagIds(List<Long> tagIds) {
+    public void setTagIds(Set<Long> tagIds) {
         this.tagIds = tagIds;
     }
 

@@ -2,7 +2,7 @@ package com.techcmr.tech_cmr.model;
 
 import jakarta.persistence.*;
 
-import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Tag {
@@ -15,11 +15,11 @@ public class Tag {
 
     // Relazione molti a molti con Task
     @ManyToMany(mappedBy = "tags")
-    private List<Task> tasks;
+    private Set<Task> tasks;
 
     // Relazione molti a molti con Project
     @ManyToMany(mappedBy = "tags")
-    private List<Project> projects;
+    private Set<Project> projects;
 
     // Getters e setters
 
@@ -39,19 +39,19 @@ public class Tag {
         this.name = name;
     }
 
-    public List<Task> getTasks() {
+    public Set<Task> getTasks() {
         return tasks;
     }
 
-    public void setTasks(List<Task> tasks) {
+    public void setTasks(Set<Task> tasks) {
         this.tasks = tasks;
     }
 
-    public List<Project> getProjects() {
+    public Set<Project> getProjects() {
         return projects;
     }
 
-    public void setProjects(List<Project> projects) {
+    public void setProjects(Set<Project> projects) {
         this.projects = projects;
     }
 }

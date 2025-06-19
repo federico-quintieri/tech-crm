@@ -2,10 +2,12 @@ package com.techcmr.tech_cmr.dto;
 
 import com.techcmr.tech_cmr.enums.TaskPriority;
 import com.techcmr.tech_cmr.enums.TaskStatus;
+import com.techcmr.tech_cmr.model.Tag;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public class TaskDTO {
 
@@ -14,7 +16,7 @@ public class TaskDTO {
     private String description;
 
     private Long projectId;
-    private List<Long> tagIds;
+    private Set<Long> tagIds;
     private Long sectionId;
 
     private TaskStatus status;
@@ -58,11 +60,11 @@ public class TaskDTO {
         this.projectId = projectId;
     }
 
-    public List<Long> getTagIds() {
+    public Set<Long> getTagIds() {
         return tagIds;
     }
 
-    public void setTagIds(List<Long> tagIds) {
+    public void setTagIds(Set<Long> tagIds) {
         this.tagIds = tagIds;
     }
 

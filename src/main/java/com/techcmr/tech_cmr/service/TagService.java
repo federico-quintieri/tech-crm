@@ -3,11 +3,14 @@ package com.techcmr.tech_cmr.service;
 import com.techcmr.tech_cmr.dto.TagDTO;
 import com.techcmr.tech_cmr.mapper.TagMapper;
 import com.techcmr.tech_cmr.model.Tag;
+import com.techcmr.tech_cmr.repository.ProjectRepository;
 import com.techcmr.tech_cmr.repository.TagRepository;
+import com.techcmr.tech_cmr.repository.TaskRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -15,7 +18,10 @@ public class TagService {
 
     @Autowired
     private TagRepository tagRepository;
-
+    @Autowired
+    private TaskRepository taskRepository;
+    @Autowired
+    private ProjectRepository projectRepository;
     @Autowired
     private TagMapper tagMapper;
 
@@ -26,7 +32,7 @@ public class TagService {
 
     // SHOW
     public TagDTO findTagById(Long id) {
-        Tag tag = tagRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Tag not found"));
+        Tag tag = tagRepository.findWithTasksAndProjectsById(id).orElseThrow(() -> new EntityNotFoundException("Tag not found"));
         return tagMapper.toDto(tag);
     }
 
@@ -39,14 +45,18 @@ public class TagService {
 
     // UPDATE
     public void updateTag(Long id, TagDTO tagDTO) {
-        Tag updatedtag = tagRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Tag not found"));
-        tagMapper.updateEntityFromDto(tagDTO, updatedtag);
-        tagRepository.save(updatedtag);
+        Tag tag = tagRepository.findWithTasksAndProjectsById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Tag not found"));
+
+        // Aggiorna i campi base (nome ecc.)
+        tagMapper.updateEntityFromDto(tagDTO, tag);
+
+        tagRepository.save(tag);
     }
 
     // DELETE
     public void deleteTag(Long id) {
-        Tag tag = tagRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Tag not found"));
+        Tag tag = tagRepository.findWithTasksAndProjectsById(id).orElseThrow(() -> new EntityNotFoundException("Tag not found"));
         tagRepository.delete(tag);
     }
 }

@@ -41,9 +41,8 @@ public class AttachmentController {
     // PUT update
     @PutMapping("/{id}")
     public ResponseEntity<AttachmentDTO> updateAttachment(@PathVariable Long id, @RequestBody AttachmentDTO attachmentDTO) {
-        attachmentDTO.setId(id);
-        AttachmentDTO updated = attachmentService.saveAttachment(attachmentDTO);
-        return ResponseEntity.ok(updated);
+        attachmentService.updateAttachment(id,attachmentDTO);
+        return ResponseEntity.ok().build();
     }
 
     // DELETE

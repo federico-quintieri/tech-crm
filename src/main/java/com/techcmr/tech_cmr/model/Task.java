@@ -3,6 +3,7 @@ package com.techcmr.tech_cmr.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import com.techcmr.tech_cmr.enums.TaskStatus;
 import com.techcmr.tech_cmr.enums.TaskPriority;
@@ -31,7 +32,7 @@ public class Task {
             joinColumns = @JoinColumn(name = "task_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    private List<Tag> tags;
+    private Set<Tag> tags;
 
     // Relazione Many to one con section
     @ManyToOne
@@ -122,11 +123,11 @@ public class Task {
         this.completedAt = completedAt;
     }
 
-    public List<Tag> getTags() {
+    public Set<Tag> getTags() {
         return tags;
     }
 
-    public void setTags(List<Tag> tags) {
+    public void setTags(Set<Tag> tags) {
         this.tags = tags;
     }
 

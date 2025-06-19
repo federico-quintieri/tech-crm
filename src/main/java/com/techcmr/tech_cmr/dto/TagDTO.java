@@ -1,14 +1,18 @@
 package com.techcmr.tech_cmr.dto;
 
+import com.techcmr.tech_cmr.model.Project;
+import com.techcmr.tech_cmr.model.Task;
+
 import java.util.List;
+import java.util.Set;
 
 public class TagDTO {
 
     private Long id;
     private String name;
 
-    private List<Long> taskIds;
-    private List<Long> projectIds;
+    private Set<Long> taskIds;
+    private Set<Long> projectIds;
 
     // Getters e setters
 
@@ -28,19 +32,19 @@ public class TagDTO {
         this.name = name;
     }
 
-    public List<Long> getTaskIds() {
+    public Set<Long> getTaskIds() {
         return taskIds;
     }
 
-    public void setTaskIds(List<Long> taskIds) {
+    public void setTaskIds(Set<Long> taskIds) {
         this.taskIds = taskIds;
     }
 
-    public List<Long> getProjectIds() {
+    public Set<Long> getProjectIds() {
         return projectIds;
     }
 
-    public void setProjectIds(List<Long> projectIds) {
+    public void setProjectIds(Set<Long> projectIds) {
         this.projectIds = projectIds;
     }
 }

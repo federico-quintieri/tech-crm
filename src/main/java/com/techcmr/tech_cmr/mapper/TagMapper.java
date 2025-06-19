@@ -2,64 +2,55 @@ package com.techcmr.tech_cmr.mapper;
 
 import com.techcmr.tech_cmr.dto.TagDTO;
 import com.techcmr.tech_cmr.model.Project;
-import com.techcmr.tech_cmr.model.Role;
 import com.techcmr.tech_cmr.model.Tag;
 import com.techcmr.tech_cmr.model.Task;
 import org.mapstruct.*;
 
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface TagMapper {
 
-    @Mapping(source = "tasks", target = "taskIds")
-    @Mapping(source = "projects", target = "projectIds")
+    @Mapping(target = "taskIds", expression = "java(mapTasksToIds(tag.getTasks()))")
+    @Mapping(target = "projectIds", expression = "java(mapProjectsToIds(tag.getProjects()))")
     TagDTO toDto(Tag tag);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "tasks", expression = "java(tasksFromIds(dto.getTaskIds()))")
-    @Mapping(target = "projects", expression = "java(projectsFromIds(dto.getProjectIds()))")
+    @Mapping(target = "tasks", expression = "java(mapIdsToTasks(dto.getTaskIds()))")
+    @Mapping(target = "projects", expression = "java(mapIdsToProjects(dto.getProjectIds()))")
     Tag toEntity(TagDTO dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntityFromDto(TagDTO tag, @MappingTarget Tag entity);
+    void updateEntityFromDto(TagDTO dto, @MappingTarget Tag entity);
 
-    // Default methods per convertire liste entità <-> liste di id
+    // Helpers
 
-    default List<Long> tasksToIds(List<Task> tasks) {
+    default Set<Long> mapTasksToIds(Set<Task> tasks) {
         if (tasks == null) return null;
-        return tasks.stream()
-                .map(Task::getId)
-                .collect(Collectors.toList());
+        return tasks.stream().map(Task::getId).collect(Collectors.toSet());
     }
 
-    default List<Task> tasksFromIds(List<Long> ids) {
+    default Set<Task> mapIdsToTasks(Set<Long> ids) {
         if (ids == null) return null;
-        return ids.stream()
-                .map(id -> {
-                    Task t = new Task();
-                    t.setId(id);
-                    return t;
-                })
-                .collect(Collectors.toList());
+        return ids.stream().map(id -> {
+            Task t = new Task();
+            t.setId(id);
+            return t;
+        }).collect(Collectors.toSet());
     }
 
-    default List<Long> projectsToIds(List<Project> projects) {
+    default Set<Long> mapProjectsToIds(Set<Project> projects) {
         if (projects == null) return null;
-        return projects.stream()
-                .map(Project::getId)
-                .collect(Collectors.toList());
+        return projects.stream().map(Project::getId).collect(Collectors.toSet());
     }
 
-    default List<Project> projectsFromIds(List<Long> ids) {
+    default Set<Project> mapIdsToProjects(Set<Long> ids) {
         if (ids == null) return null;
-        return ids.stream()
-                .map(id -> {
-                    Project p = new Project();
-                    p.setId(id);
-                    return p;
-                })
-                .collect(Collectors.toList());
+        return ids.stream().map(id -> {
+            Project p = new Project();
+            p.setId(id);
+            return p;
+        }).collect(Collectors.toSet());
     }
 }

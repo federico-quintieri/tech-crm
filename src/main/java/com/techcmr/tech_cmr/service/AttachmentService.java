@@ -38,16 +38,16 @@ public class AttachmentService {
     }
 
     // Modifica attachement
-    public void updateAttachment(AttachmentDTO attachmentDTO) {
+    public void updateAttachment(Long id, AttachmentDTO attachmentDTO) {
 
         // 1 Trovo l'entity esistente
-        Attachment existingAttachment = attachmentRepository.findById(attachmentDTO.getId()).orElseThrow(() -> new EntityNotFoundException("Attachment not found"));
+        Attachment updatedAttachment = attachmentRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Attachment not found"));
 
         // 2 Applico i nuovi valori ( merge tra DTO e entity esistente)
-        attachmentMapper.updateEntityFromDto(attachmentDTO, existingAttachment);
+        attachmentMapper.updateEntityFromDto(attachmentDTO, updatedAttachment);
 
         // 3 Salvo nel db
-        attachmentRepository.save(existingAttachment);
+        attachmentRepository.save(updatedAttachment);
     }
 
     // Cancella attachment
