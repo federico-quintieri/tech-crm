@@ -1,6 +1,8 @@
 package com.techcmr.tech_cmr.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
@@ -11,15 +13,17 @@ public class Section {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Section name is required")
+    @Size(max=100, message="Section name cannot exceed 100 characters")
     private String name;  // Nome della sezione, es. "To Do", "In Progress", "Done"
 
-    // Relazione many to une, ogni sezione appartiene a un progetto
+    // Ogni section appartiene ad un solo progetto
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;
 
-    // Relazione uno a molti, una sezione ha molte task
-    @OneToMany(mappedBy = "section")
+    // Una section contiene molte task
+    @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
 
     // Getters e setters

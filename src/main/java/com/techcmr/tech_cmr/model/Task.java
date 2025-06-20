@@ -2,13 +2,16 @@ package com.techcmr.tech_cmr.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 
 import com.techcmr.tech_cmr.enums.TaskStatus;
 import com.techcmr.tech_cmr.enums.TaskPriority;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class Task {
@@ -17,12 +20,16 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Title is required")
+    @Size(max = 255, message = "Title must not exceed 255 characters")
     private String title;
+
+    @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
 
     // Relazione many to one con progetto, un solo progetto
-    @ManyToOne
-    @JoinColumn(name = "project_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
     // Relazione many to many con tag
@@ -40,13 +47,20 @@ public class Task {
     private Section section;
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Task status is required")
     private TaskStatus status;
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Task priority is required")
     private TaskPriority priority;
 
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+
     private LocalDate dueDate;
+
+    @PastOrPresent(message = "Completed date cannot be in the future")
     private LocalDateTime completedAt;
 
     // Getters and setters

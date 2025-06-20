@@ -1,6 +1,8 @@
 package com.techcmr.tech_cmr.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.util.Set;
 
@@ -11,6 +13,8 @@ public class Tag {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Tag name is required")
+    @Size(max = 50, message = "Tag name must not exceed 50 characters")
     private String name;  // Nome del tag, es. "Urgente", "Frontend", "Bug"
 
     // Relazione molti a molti con Task

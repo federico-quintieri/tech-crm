@@ -3,12 +3,9 @@ package com.techcmr.tech_cmr.model;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class Team {
@@ -17,14 +14,20 @@ public class Team {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Team name is required")
+    @Size(max = 100, message = "Team name must not exceed 100 characters")
     private String name;
+
+    @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
+
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "team")
+    @OneToMany(mappedBy = "team", cascade =  CascadeType.ALL, orphanRemoval = true)
     private List<Project> projects;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     private Workspace workspace;
 
 // Getters and setters

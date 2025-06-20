@@ -1,6 +1,8 @@
 package com.techcmr.tech_cmr.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class Attachment {
@@ -9,8 +11,16 @@ public class Attachment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "File name is required")
+    @Size(max = 255, message = "File name must not exceed 255 characters")
     private String fileName;    // Nome del file originale
+
+    @NotBlank(message = "File type is required")
+    @Size(max = 50, message = "File type must not exceed 50 characters")
     private String fileType;    // Tipo MIME o estensione
+
+    @NotBlank(message = "File URL is required")
+    @Size(max = 500, message = "File URL must not exceed 500 characters")
     private String url;         // Link o percorso al file salvato (es. su server o cloud)
 
     // Allegato a una task (opzionale)

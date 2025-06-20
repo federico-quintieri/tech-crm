@@ -1,6 +1,8 @@
 package com.techcmr.tech_cmr.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
@@ -13,14 +15,16 @@ public class Workspace {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Workspace name is required")
+    @Size(max = 150, message = "Workspace name must not exceed 150 characters")
     private String name;
 
     // One workspace has many teams
-    @OneToMany(mappedBy = "workspace")
+    @OneToMany(mappedBy = "workspace",  cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Team> teams;
 
     // One workspace has many projects
-    @OneToMany(mappedBy = "workspace")
+    @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Project> projects;
 
     // Getters and setters

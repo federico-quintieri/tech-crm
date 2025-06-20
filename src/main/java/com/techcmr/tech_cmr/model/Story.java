@@ -1,6 +1,8 @@
 package com.techcmr.tech_cmr.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
@@ -11,13 +13,16 @@ public class Story {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Story content is required")
+    @Size(max = 1000, message = "Story content must not exceed 1000 characters")
     private String content;  // Testo del commento o descrizione evento
 
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     // L'autore del commento / evento
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User author;
 
     // Task associata (opzionale, se la story è su una task)

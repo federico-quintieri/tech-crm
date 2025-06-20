@@ -2,12 +2,12 @@ package com.techcmr.tech_cmr.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 
 import com.techcmr.tech_cmr.enums.ProjectStatus;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 @Entity
 public class Project {
@@ -16,20 +16,25 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Project name is required")
+    @Size(max = 100, message = "Project name must not exceed 100 characters")
     private String name;
+
+    @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
 
     // Relazione molti a uno con team
-    @ManyToOne
-    @JoinColumn(name = "team_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "team_id", nullable = false)
     private Team team;
 
     // Relazione uno a molti con project
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Task> tasks;
 
     // Relazione molti a uno con workspace
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "workspace_id", nullable = false)
     private Workspace workspace;
 
     // Relazione molti a molti con tags
@@ -42,16 +47,23 @@ public class Project {
     private Set<Tag> tags;
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Project status is required")
     private ProjectStatus status;
 
+    @NotNull(message = "Start date is required")
     private LocalDate startDate;
+
+    @FutureOrPresent(message = "Expected end date cannot be in the past")
     private LocalDate expectedEndDate;
+
+    @PastOrPresent(message = "Actual end date cannot be in the future")
     private LocalDate actualEndDate;
 
+    // La data di creazione dovrebbe essere gestita dal DB
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     // getters and setters
-
     public Long getId() {
         return id;
     }
