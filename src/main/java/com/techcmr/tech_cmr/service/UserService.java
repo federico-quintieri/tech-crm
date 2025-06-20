@@ -38,7 +38,7 @@ public class UserService {
     }
 
     // UPDATE
-    public void udpdatedUser(Long id, UserDTO userDTO) {
+    public void updateUser(Long id, UserDTO userDTO) {
         User updatedUser = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         updatedUser.setUsername(userDTO.getUsername());

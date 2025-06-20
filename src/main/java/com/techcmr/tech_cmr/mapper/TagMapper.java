@@ -26,12 +26,13 @@ public interface TagMapper {
     @Mapping(target = "projects", ignore = true)
     void updateEntityFromDto(TagDTO dto, @MappingTarget Tag entity);
 
-    // Helpers rimangono per toDto (map IDs from Entity)
+    // Metodo che converte il set di task in set di id delle tast
     default Set<Long> mapTasksToIds(Set<Task> tasks) {
         if (tasks == null) return null;
         return tasks.stream().map(Task::getId).collect(Collectors.toSet());
     }
 
+    // Metodo che converte il set di project in set di id dei project
     default Set<Long> mapProjectsToIds(Set<Project> projects) {
         if (projects == null) return null;
         return projects.stream().map(Project::getId).collect(Collectors.toSet());
