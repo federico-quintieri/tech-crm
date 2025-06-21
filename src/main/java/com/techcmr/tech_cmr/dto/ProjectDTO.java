@@ -16,7 +16,7 @@ public class ProjectDTO {
     private Long workspaceId;
 
     private Set<Long> tagIds; // solo ID dei tag
-    private Set<Long> tasksIds; // solo ID delle task collegate al progetto
+    private Set<Long> taskIds; // solo ID delle task collegate al progetto
 
     private ProjectStatus status;
 
@@ -117,10 +117,10 @@ public class ProjectDTO {
     }
 
     public Set<Long> getTaskIds() {
-        return tasksIds;
+        return taskIds;
     }
 
-    public void setTasksIds(Set<Long> tasksIds) {
-        this.tasksIds = tasksIds;
+    public void setTaskIds(Set<Long> tasksIds) {
+        this.taskIds = tasksIds;
     }
 }

@@ -4,6 +4,8 @@ import com.techcmr.tech_cmr.dto.TagDTO;
 import com.techcmr.tech_cmr.model.Project;
 import com.techcmr.tech_cmr.model.Tag;
 import com.techcmr.tech_cmr.model.Task;
+import com.techcmr.tech_cmr.service.*;
+import jakarta.persistence.EntityNotFoundException;
 import org.mapstruct.*;
 
 import java.util.Set;
@@ -17,14 +19,14 @@ public interface TagMapper {
     TagDTO toDto(Tag tag);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "tasks", ignore = true)  // Ignora qui!
-    @Mapping(target = "projects", ignore = true)  // Ignora qui!
-    Tag toEntity(TagDTO dto);
+    @Mapping(target = "tasks", expression = "java(mapIdsToTasks(dto.getTaskIds(), taskService))")
+    @Mapping(target = "projects", expression = "java(mapIdsToProjects(dto.getProjectIds(), projectService))")
+    Tag toEntity(TagDTO dto, @Context ProjectService projectService, @Context TaskService taskService);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "tasks", ignore = true)
     @Mapping(target = "projects", ignore = true)
-    void updateEntityFromDto(TagDTO dto, @MappingTarget Tag entity);
+    void updateEntityFromDto(TagDTO dto, @MappingTarget Tag entity, @Context ProjectService projectService, @Context TaskService taskService);
 
     // Metodo che converte il set di task in set di id delle tast
     default Set<Long> mapTasksToIds(Set<Task> tasks) {
@@ -37,4 +39,24 @@ public interface TagMapper {
         if (projects == null) return null;
         return projects.stream().map(Project::getId).collect(Collectors.toSet());
     }
+
+    // MANY TO MANY CON PROJECTS E TASKS
+
+    // Metodo che prende gli ids e mi ci fa un set di tasks
+    default Set<Task> mapIdsToTasks(Set<Long> ids, @Context TaskService taskService) {
+        if (ids == null) return null;
+        return ids.stream()
+                .map(id -> taskService.findById(id).orElseThrow(() -> new EntityNotFoundException("Task not found: " + id)))
+                .collect(Collectors.toSet());
+    }
+
+    // Metodo che prende gli ids e mi ci fa un set di projects
+    default Set<Project> mapIdsToProjects(Set<Long> ids, @Context ProjectService projectService) {
+        if (ids == null) return null;
+        return ids.stream()
+                .map(id -> projectService.findById(id).orElseThrow(() -> new EntityNotFoundException("Project not found: " + id)))
+                .collect(Collectors.toSet());
+    }
+
 }
+

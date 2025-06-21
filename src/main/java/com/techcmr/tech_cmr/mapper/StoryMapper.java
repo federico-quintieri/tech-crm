@@ -19,7 +19,10 @@ public interface StoryMapper {
     Story toEntity(StoryDTO dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntityFromDto(StoryDTO story, @MappingTarget Story entity);
+    @Mapping(target = "author", expression = "java(userFromId(dto.getAuthorId()))")
+    @Mapping(target = "task", expression = "java(taskFromId(dto.getTaskId()))")
+    @Mapping(target = "project", expression = "java(projectFromId(dto.getProjectId()))")
+    void updateEntityFromDto(StoryDTO dto, @MappingTarget Story entity);
 
     // Metodi di utilità per creare riferimenti con solo ID
 

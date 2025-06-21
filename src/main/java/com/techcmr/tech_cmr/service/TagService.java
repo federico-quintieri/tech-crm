@@ -23,9 +23,15 @@ public class TagService {
     @Autowired
     private TagRepository tagRepository;
     @Autowired
-    private TaskRepository taskRepository;
-    @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private TaskRepository taskRepository;
+
+    @Autowired
+    private ProjectService projectService;
+    @Autowired
+    private TaskService taskService;
+
     @Autowired
     private TagMapper tagMapper;
 
@@ -46,35 +52,13 @@ public class TagService {
 
     // CREATE
     public TagDTO createTag(TagDTO tagDTO) {
-        Tag tag = tagMapper.toEntity(tagDTO);
+        Tag tag = tagMapper.toEntity(tagDTO, projectService, taskService);
 
-        // Salviamo il Tag per avere l'ID (necessario per relazioni)
-        tag = tagRepository.save(tag);
-
-        // Relazioni con Task
-        if (tagDTO.getTaskIds() != null && !tagDTO.getTaskIds().isEmpty()) {
-            List<Task> tasks = taskRepository.findAllById(tagDTO.getTaskIds());
-            for (Task task : tasks) {
-                if (task.getTags() == null) {
-                    task.setTags(new HashSet<>());
-                }
-                task.getTags().add(tag);  // aggiungi il tag al task
-                taskRepository.save(task);
-            }
-            tag.setTasks(new HashSet<>(tasks)); // aggiorna anche il lato Tag
+        for (Task task : tag.getTasks()) {
+            task.getTags().add(tag);
         }
-
-        // Relazioni con Project
-        if (tagDTO.getProjectIds() != null && !tagDTO.getProjectIds().isEmpty()) {
-            List<Project> projects = projectRepository.findAllById(tagDTO.getProjectIds());
-            for (Project project : projects) {
-                if (project.getTags() == null) {
-                    project.setTags(new HashSet<>());
-                }
-                project.getTags().add(tag);  // aggiungi il tag al project
-                projectRepository.save(project);
-            }
-            tag.setProjects(new HashSet<>(projects)); // aggiorna anche il lato Tag
+        for (Project project : tag.getProjects()) {
+            project.getTags().add(tag);
         }
 
         // Salva di nuovo il tag aggiornato con relazioni
@@ -159,20 +143,19 @@ public class TagService {
         Tag tag = tagRepository.findWithTasksAndProjectsById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Tag not found"));
 
-        // Rimuovi associazione con Task
+        // Rimuovi la relazione da entrambi i lati, se necessario
         if (tag.getTasks() != null) {
             for (Task task : tag.getTasks()) {
-                task.getTags().remove(tag);
-                taskRepository.save(task);
+                task.getTags().remove(tag); // lato inverso
             }
+            tag.getTasks().clear(); // lato diretto
         }
 
-        // Rimuovi associazione con Project
         if (tag.getProjects() != null) {
             for (Project project : tag.getProjects()) {
-                project.getTags().remove(tag);
-                projectRepository.save(project);
+                project.getTags().remove(tag); // lato inverso
             }
+            tag.getProjects().clear(); // lato diretto
         }
 
         // Ora puoi cancellare il tag

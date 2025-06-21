@@ -12,14 +12,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 // Definisco interfaccia con il mapper che usa i service delle relazioni
-@Mapper(componentModel = "spring", uses = {TeamService.class, WorkspaceService.class, TagService.class, TagService.class})
+@Mapper(componentModel = "spring", uses = {TeamService.class, WorkspaceService.class, TagService.class})
 public interface ProjectMapper {
 
     // Definisco quali metodi devono essere usati per convertire dei campi da entity a dto
     @Mapping(target = "tagIds", expression = "java(mapTagsToIds(project.getTags()))")
     @Mapping(target = "teamId", expression = "java(mapTeamToId(project.getTeam()))")
     @Mapping(target = "workspaceId", expression = "java(mapWorkspaceToId(project.getWorkspace()))")
-    @Mapping(target = "tasksIds", expression = "java(mapTasksToIds(project.getTasks()))")
+    @Mapping(target = "taskIds", expression = "java(mapTasksToIds(project.getTasks()))")
     ProjectDTO toDto(Project project);
 
     // Definisco quali metodi devono essere usati per convertire dei campi da dto a entity
