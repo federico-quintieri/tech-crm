@@ -20,6 +20,8 @@ public interface AttachmentMapper {
     Attachment toEntity(AttachmentDTO dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "task", expression = "java(taskFromId(dto.getTaskId()))")
+    @Mapping(target = "project", expression = "java(projectFromId(dto.getProjectId()))")
     void updateEntityFromDto(AttachmentDTO dto, @MappingTarget Attachment entity);
 
     default Task taskFromId(Long id) {

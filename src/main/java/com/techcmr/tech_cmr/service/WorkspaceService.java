@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class WorkspaceService {
@@ -18,6 +19,10 @@ public class WorkspaceService {
 
     @Autowired
     private WorkspaceMapper workspaceMapper;
+
+    public Optional<Workspace> findById(Long id) {
+        return workspaceRepository.findById(id);
+    }
 
     // READ
     public List<WorkspaceDTO> findAllWorkspaces() {

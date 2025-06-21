@@ -16,9 +16,17 @@ import java.util.Set;
 @Service
 public class ProjectService {
 
+    // Autowired repository
     @Autowired
     private ProjectRepository projectRepository;
 
+    // Autowired services
+    @Autowired
+    private TeamService teamService;
+    @Autowired
+    private WorkspaceService workspaceService;
+
+    // Autowired mapper
     @Autowired
     private ProjectMapper projectMapper;
 
@@ -35,9 +43,16 @@ public class ProjectService {
 
     // CREATE
     public ProjectDTO createProject(ProjectDTO projectDTO) {
-        Project project = projectMapper.toEntity(projectDTO);
+
+        // Mappatura completa con i servizi passati come @Context
+        Project project = projectMapper.toEntity(projectDTO, teamService, workspaceService);
+
+        // Salvataggio
         Project savedProject = projectRepository.save(project);
+
+        // Ritorno DTO
         return projectMapper.toDto(savedProject);
+
     }
 
     // UPDATE
@@ -47,7 +62,7 @@ public class ProjectService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         // 2. Applico i nuovi valori (merge tra DTO e entity esistente)
-        projectMapper.updateEntityFromDto(projectDTO, existingProject);
+        projectMapper.updateEntityFromDto(projectDTO, existingProject, teamService, workspaceService);
 
         // 3. Salvo
         projectRepository.save(existingProject);

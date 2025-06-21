@@ -63,6 +63,12 @@ public class Project {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    // 👉 Metodo che imposta createdAt quando l'entità viene salvata per la prima volta
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
+
     // getters and setters
     public Long getId() {
         return id;

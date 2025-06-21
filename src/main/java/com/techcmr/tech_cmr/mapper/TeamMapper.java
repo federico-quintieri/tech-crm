@@ -24,7 +24,9 @@ public interface TeamMapper {
     Team toEntity(TeamDTO dto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntityFromDto(TeamDTO team, @MappingTarget Team entity);
+    @Mapping(target = "projects", expression = "java(projectsFromIds(dto.getProjectIds()))")
+    @Mapping(target = "workspace", expression = "java(workspaceFromId(dto.getWorkspaceId()))")
+    void updateEntityFromDto(TeamDTO dto, @MappingTarget Team entity);
 
     // Helper per conversione lista Project -> lista ID
     default List<Long> projectsToIds(List<Project> projects) {

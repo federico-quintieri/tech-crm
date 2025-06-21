@@ -17,9 +17,6 @@ public class Story {
     @Size(max = 1000, message = "Story content must not exceed 1000 characters")
     private String content;  // Testo del commento o descrizione evento
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
     // L'autore del commento / evento
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
@@ -34,6 +31,15 @@ public class Story {
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    // 👉 Metodo che imposta createdAt quando l'entità viene salvata per la prima volta
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     // Getters e setters
 

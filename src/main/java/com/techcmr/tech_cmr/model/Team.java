@@ -21,14 +21,20 @@ public class Team {
     @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @OneToMany(mappedBy = "team", cascade =  CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<Project> projects;
 
     @ManyToOne(optional = false)
     private Workspace workspace;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    // 👉 Metodo che imposta createdAt quando l'entità viene salvata per la prima volta
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
 
 // Getters and setters
 
