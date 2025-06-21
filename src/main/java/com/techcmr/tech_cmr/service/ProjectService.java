@@ -4,6 +4,7 @@ import com.techcmr.tech_cmr.dto.ProjectDTO;
 import com.techcmr.tech_cmr.mapper.ProjectMapper;
 import com.techcmr.tech_cmr.model.Project;
 import com.techcmr.tech_cmr.model.Tag;
+import com.techcmr.tech_cmr.model.Task;
 import com.techcmr.tech_cmr.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -25,10 +27,16 @@ public class ProjectService {
     private TeamService teamService;
     @Autowired
     private WorkspaceService workspaceService;
+    @Autowired
+    private TaskService taskService;
 
     // Autowired mapper
     @Autowired
     private ProjectMapper projectMapper;
+
+    public Optional<Project> findById(Long id) {
+        return projectRepository.findById(id);
+    }
 
     // READ
     public List<ProjectDTO> findAllProjects() {
@@ -45,7 +53,14 @@ public class ProjectService {
     public ProjectDTO createProject(ProjectDTO projectDTO) {
 
         // Mappatura completa con i servizi passati come @Context
-        Project project = projectMapper.toEntity(projectDTO, teamService, workspaceService);
+        Project project = projectMapper.toEntity(projectDTO, teamService, workspaceService, taskService);
+
+        // Qui in pratica vado per ogni task ad assegnargli il progetto
+        if(project.getTasks() != null){
+            for(Task task : project.getTasks()){
+                task.setProject(project);
+            }
+        }
 
         // Salvataggio
         Project savedProject = projectRepository.save(project);
@@ -62,8 +77,14 @@ public class ProjectService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         // 2. Applico i nuovi valori (merge tra DTO e entity esistente)
-        projectMapper.updateEntityFromDto(projectDTO, existingProject, teamService, workspaceService);
+        projectMapper.updateEntityFromDto(projectDTO, existingProject, teamService, workspaceService,taskService);
 
+        // Qui in pratica vado per ogni task ad assegnargli il progetto
+        if(existingProject.getTasks() != null){
+            for(Task task : existingProject.getTasks()){
+                task.setProject(existingProject);
+            }
+        }
         // 3. Salvo
         projectRepository.save(existingProject);
 

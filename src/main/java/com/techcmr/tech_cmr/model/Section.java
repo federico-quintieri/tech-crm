@@ -23,7 +23,7 @@ public class Section {
     private Project project;
 
     // Una section contiene molte task
-    @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "section", cascade = CascadeType.ALL)
     private List<Task> tasks;
 
     // Getters e setters

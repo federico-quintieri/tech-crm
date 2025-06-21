@@ -1,11 +1,9 @@
 package com.techcmr.tech_cmr.mapper;
 
 import com.techcmr.tech_cmr.dto.ProjectDTO;
-import com.techcmr.tech_cmr.model.Project;
-import com.techcmr.tech_cmr.model.Tag;
-import com.techcmr.tech_cmr.model.Team;
-import com.techcmr.tech_cmr.model.Workspace;
+import com.techcmr.tech_cmr.model.*;
 import com.techcmr.tech_cmr.service.TagService;
+import com.techcmr.tech_cmr.service.TaskService;
 import com.techcmr.tech_cmr.service.TeamService;
 import com.techcmr.tech_cmr.service.WorkspaceService;
 import org.mapstruct.*;
@@ -14,13 +12,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 // Definisco interfaccia con il mapper che usa i service delle relazioni
-@Mapper(componentModel = "spring", uses = {TeamService.class, WorkspaceService.class, TagService.class})
+@Mapper(componentModel = "spring", uses = {TeamService.class, WorkspaceService.class, TagService.class, TagService.class})
 public interface ProjectMapper {
 
     // Definisco quali metodi devono essere usati per convertire dei campi da entity a dto
     @Mapping(target = "tagIds", expression = "java(mapTagsToIds(project.getTags()))")
     @Mapping(target = "teamId", expression = "java(mapTeamToId(project.getTeam()))")
     @Mapping(target = "workspaceId", expression = "java(mapWorkspaceToId(project.getWorkspace()))")
+    @Mapping(target = "tasksIds", expression = "java(mapTasksToIds(project.getTasks()))")
     ProjectDTO toDto(Project project);
 
     // Definisco quali metodi devono essere usati per convertire dei campi da dto a entity
@@ -28,14 +27,16 @@ public interface ProjectMapper {
     @Mapping(target = "tags", expression = "java(mapIdsToTags(dto.getTagIds()))")
     @Mapping(target = "team", expression = "java(mapIdToTeam(dto.getTeamId(), teamService))")
     @Mapping(target = "workspace", expression = "java(mapIdToWorkspace(dto.getWorkspaceId(), workspaceService))")
-    Project toEntity(ProjectDTO dto, @Context TeamService teamService, @Context WorkspaceService workspaceService);
+    @Mapping(target = "tasks", expression = "java(mapIdsToTasks(dto.getTaskIds(), taskService))")
+    Project toEntity(ProjectDTO dto, @Context TeamService teamService, @Context WorkspaceService workspaceService, @Context TaskService taskService);
 
     // Definisco quali metodi devono essere usati per mergiare entity da dto
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "tags", expression = "java(mapIdsToTags(dto.getTagIds()))")
     @Mapping(target = "team", expression = "java(mapIdToTeam(dto.getTeamId(), teamService))")
     @Mapping(target = "workspace", expression = "java(mapIdToWorkspace(dto.getWorkspaceId(), workspaceService))")
-    void updateEntityFromDto(ProjectDTO dto, @MappingTarget Project entity, @Context TeamService teamService, @Context WorkspaceService workspaceService);
+    @Mapping(target = "tasks", expression = "java(mapIdsToTasks(dto.getTaskIds(), taskService))")
+    void updateEntityFromDto(ProjectDTO dto, @MappingTarget Project entity, @Context TeamService teamService, @Context WorkspaceService workspaceService, @Context TaskService taskService);
 
     // METODI CHE PRENDONO OGGETTO/i E RESTITUISCONO ID/s
 
@@ -43,6 +44,11 @@ public interface ProjectMapper {
     default Set<Long> mapTagsToIds(Set<Tag> tags) {
         if (tags == null) return null;
         return tags.stream().map(Tag::getId).collect(Collectors.toSet());
+    }
+
+    default Set<Long> mapTasksToIds(Set<Task> tasks) {
+        if (tasks == null) return null;
+        return tasks.stream().map(Task::getId).collect(Collectors.toSet());
     }
 
     // Da team mi restituisce l'id
@@ -67,6 +73,15 @@ public interface ProjectMapper {
         }).collect(Collectors.toSet());
     }
 
+    // Metodo che prendi gli ids e ci fa un set di tasks
+    default Set<Task> mapIdsToTasks(Set<Long> ids, @Context TaskService taskService) {
+        if (ids == null) return null;
+        return ids.stream()
+                .map(id -> taskService.findById(id)
+                        .orElseThrow(() -> new RuntimeException("Task with id " + id + " not found")))
+                .collect(Collectors.toSet());
+    }
+
     // Metodo che da id team mi prende il team
     default Team mapIdToTeam(Long id, TeamService teamService) {
         if (id == null) return null;
@@ -80,8 +95,5 @@ public interface ProjectMapper {
         return workspaceService.findById(id)
                 .orElseThrow(() -> new RuntimeException("Workspace with id " + id + " not found"));
     }
-
-
-
 
 }

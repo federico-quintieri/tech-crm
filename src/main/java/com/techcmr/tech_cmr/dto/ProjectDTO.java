@@ -1,11 +1,9 @@
 package com.techcmr.tech_cmr.dto;
 
 import com.techcmr.tech_cmr.enums.ProjectStatus;
-import com.techcmr.tech_cmr.model.Tag;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 
 public class ProjectDTO {
@@ -18,6 +16,7 @@ public class ProjectDTO {
     private Long workspaceId;
 
     private Set<Long> tagIds; // solo ID dei tag
+    private Set<Long> tasksIds; // solo ID delle task collegate al progetto
 
     private ProjectStatus status;
 
@@ -115,5 +114,13 @@ public class ProjectDTO {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Set<Long> getTaskIds() {
+        return tasksIds;
+    }
+
+    public void setTasksIds(Set<Long> tasksIds) {
+        this.tasksIds = tasksIds;
     }
 }

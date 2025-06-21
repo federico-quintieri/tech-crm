@@ -29,7 +29,7 @@ public class Project {
     private Team team;
 
     // Relazione uno a molti con project
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private Set<Task> tasks;
 
     // Relazione molti a uno con workspace

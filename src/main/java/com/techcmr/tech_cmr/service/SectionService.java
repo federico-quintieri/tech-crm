@@ -3,6 +3,7 @@ package com.techcmr.tech_cmr.service;
 import com.techcmr.tech_cmr.dto.SectionDTO;
 import com.techcmr.tech_cmr.mapper.SectionMapper;
 import com.techcmr.tech_cmr.model.Section;
+import com.techcmr.tech_cmr.model.Task;
 import com.techcmr.tech_cmr.repository.SectionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,11 @@ public class SectionService {
 
     @Autowired
     private SectionRepository sectionRepository;
+
+    @Autowired
+    private ProjectService projectService;
+    @Autowired
+    private TaskService taskService;
 
     @Autowired
     private SectionMapper sectionMapper;
@@ -33,23 +39,28 @@ public class SectionService {
 
     // CREATE
     public SectionDTO createSection(SectionDTO sectionDTO) {
-        Section section = sectionMapper.toEntity(sectionDTO);
-        Section savedSection = sectionRepository.save(section);
-        return sectionMapper.toDto(savedSection);
+        Section section = sectionMapper.toEntity(sectionDTO, projectService, taskService);
+        if (section.getTasks() != null) {
+            for (Task t : section.getTasks()) {
+                t.setSection(section);  // importantissimo per Hibernate
+            }
+        }
+        Section saved = sectionRepository.save(section);
+        return sectionMapper.toDto(saved);
     }
 
     // UPDATE
     public void updateSection(Long id, SectionDTO sectionDTO) {
 
-        // Recupero la section esistente
-        Section existingSection = sectionRepository.findById(id)
+        Section existing = sectionRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-        // Applico i nuovi valori dal DTO all'entità esistente
-        sectionMapper.updateEntityFromDto(sectionDTO, existingSection);
-
-        // Salvo l'entità aggiornata
-        sectionRepository.save(existingSection);
+        sectionMapper.updateEntityFromDto(sectionDTO, existing, projectService, taskService);
+        if (existing.getTasks() != null) {
+            for (Task t : existing.getTasks()) {
+                t.setSection(existing);
+            }
+        }
+        sectionRepository.save(existing);
     }
 
     // DELETE
