@@ -72,67 +72,47 @@ public class TagService {
         Tag tag = tagRepository.findWithTasksAndProjectsById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Tag not found"));
 
-        tag.setName(tagDTO.getName());
+        // Aggiorna solo i campi semplici (es. name)
+        tagMapper.updateEntityFromDto(tagDTO, tag, projectService, taskService);
 
-        // Aggiorno i Task associati: devo aggiornare i tags di ogni Task
+        // Gestione manuale delle relazioni Task
         if (tagDTO.getTaskIds() != null) {
-            // Prendo tutti i task in DB con gli id dati
-            List<Task> tasks = taskRepository.findAllById(tagDTO.getTaskIds());
+            Set<Task> newTasks = new HashSet<>(taskRepository.findAllById(tagDTO.getTaskIds()));
+            Set<Task> oldTasks = tag.getTasks() != null ? new HashSet<>(tag.getTasks()) : new HashSet<>();
 
-            // Per ogni task, aggiungo il tag (se non presente)
-            for (Task t : tasks) {
-                Set<Tag> tags = t.getTags();
-                if (tags == null) tags = new HashSet<>();
-                if (!tags.contains(tag)) {
-                    tags.add(tag);
-                    t.setTags(tags);
-                    taskRepository.save(t);
+            for (Task task : newTasks) {
+                task.getTags().add(tag);
+                taskRepository.save(task);
+            }
+
+            for (Task task : oldTasks) {
+                if (!newTasks.contains(task)) {
+                    task.getTags().remove(tag);
+                    taskRepository.save(task);
                 }
             }
 
-            // Rimuovo il tag da tutti gli altri task che prima lo avevano ma ora non più
-            Set<Task> oldTasks = tag.getTasks();
-            if (oldTasks != null) {
-                for (Task oldTask : oldTasks) {
-                    if (!tasks.contains(oldTask)) {
-                        Set<Tag> oldTags = oldTask.getTags();
-                        if (oldTags != null && oldTags.contains(tag)) {
-                            oldTags.remove(tag);
-                            oldTask.setTags(oldTags);
-                            taskRepository.save(oldTask);
-                        }
-                    }
-                }
-            }
+            tag.setTasks(newTasks);
         }
 
-        // Lo stesso per Project
+        // Gestione manuale delle relazioni Project
         if (tagDTO.getProjectIds() != null) {
-            List<Project> projects = projectRepository.findAllById(tagDTO.getProjectIds());
+            Set<Project> newProjects = new HashSet<>(projectRepository.findAllById(tagDTO.getProjectIds()));
+            Set<Project> oldProjects = tag.getProjects() != null ? new HashSet<>(tag.getProjects()) : new HashSet<>();
 
-            for (Project p : projects) {
-                Set<Tag> tags = p.getTags();
-                if (tags == null) tags = new HashSet<>();
-                if (!tags.contains(tag)) {
-                    tags.add(tag);
-                    p.setTags(tags);
-                    projectRepository.save(p);
+            for (Project project : newProjects) {
+                project.getTags().add(tag);
+                projectRepository.save(project);
+            }
+
+            for (Project project : oldProjects) {
+                if (!newProjects.contains(project)) {
+                    project.getTags().remove(tag);
+                    projectRepository.save(project);
                 }
             }
 
-            Set<Project> oldProjects = tag.getProjects();
-            if (oldProjects != null) {
-                for (Project oldProject : oldProjects) {
-                    if (!projects.contains(oldProject)) {
-                        Set<Tag> oldTags = oldProject.getTags();
-                        if (oldTags != null && oldTags.contains(tag)) {
-                            oldTags.remove(tag);
-                            oldProject.setTags(oldTags);
-                            projectRepository.save(oldProject);
-                        }
-                    }
-                }
-            }
+            tag.setProjects(newProjects);
         }
 
         tagRepository.save(tag);
