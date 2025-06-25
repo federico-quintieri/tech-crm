@@ -4,12 +4,10 @@ import com.techcmr.tech_cmr.dto.RoleDTO;
 import com.techcmr.tech_cmr.service.RoleService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 // CRUD, create, read, update, delete
 

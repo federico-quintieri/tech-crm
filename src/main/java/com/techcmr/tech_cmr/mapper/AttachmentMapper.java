@@ -1,7 +1,6 @@
 package com.techcmr.tech_cmr.mapper;
 
 import com.techcmr.tech_cmr.dto.AttachmentDTO;
-import com.techcmr.tech_cmr.dto.ProjectDTO;
 import com.techcmr.tech_cmr.model.Attachment;
 import com.techcmr.tech_cmr.model.Project;
 import com.techcmr.tech_cmr.model.Task;

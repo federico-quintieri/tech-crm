@@ -2,11 +2,9 @@ package com.techcmr.tech_cmr.dto;
 
 import com.techcmr.tech_cmr.enums.TaskPriority;
 import com.techcmr.tech_cmr.enums.TaskStatus;
-import com.techcmr.tech_cmr.model.Tag;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 
 public class TaskDTO {

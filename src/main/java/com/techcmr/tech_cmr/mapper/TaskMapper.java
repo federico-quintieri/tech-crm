@@ -1,12 +1,16 @@
 package com.techcmr.tech_cmr.mapper;
 
-import com.techcmr.tech_cmr.dto.ProjectDTO;
 import com.techcmr.tech_cmr.dto.TaskDTO;
 import com.techcmr.tech_cmr.model.Project;
+import com.techcmr.tech_cmr.model.Section;
 import com.techcmr.tech_cmr.model.Tag;
 import com.techcmr.tech_cmr.model.Task;
-import com.techcmr.tech_cmr.service.TagService;
+import com.techcmr.tech_cmr.repository.ProjectRepository;
+import com.techcmr.tech_cmr.repository.SectionRepository;
+import com.techcmr.tech_cmr.repository.TagRepository;
 import org.mapstruct.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,44 +18,77 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public interface TaskMapper {
 
+    // DTO to Entity mapping
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "project", source = "projectId", qualifiedByName = "projectIdToProject")
+    @Mapping(target = "section", source = "sectionId", qualifiedByName = "sectionIdToSection")
+    @Mapping(target = "tags", source = "tagIds", qualifiedByName = "tagIdsToTags")
+    Task toEntity(TaskDTO dto,
+                  @Context ProjectRepository projectRepository,
+                  @Context SectionRepository sectionRepository,
+                  @Context TagRepository tagRepository);
 
-    @Mapping(target = "tagIds", expression = "java(mapTagsToIds(task.getTags()))")
+    // Entity to DTO mapping
+    @Mapping(target = "projectId", source = "project.id")
+    @Mapping(target = "sectionId", source = "section.id")
+    @Mapping(target = "tagIds", source = "tags", qualifiedByName = "tagsToTagIds")
     TaskDTO toDto(Task task);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "tags", expression = "java(mapIdsToTags(dto.getTagIds()))")
-    Task toEntity(TaskDTO dto);
-
+    // Update existing entity from DTO
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateEntityFromDto(TaskDTO dto, @MappingTarget Task entity);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "project", source = "projectId", qualifiedByName = "projectIdToProject")
+    @Mapping(target = "section", source = "sectionId", qualifiedByName = "sectionIdToSection")
+    @Mapping(target = "tags", source = "tagIds", qualifiedByName = "tagIdsToTags")
+    void updateEntityFromDto(TaskDTO dto,
+                            @MappingTarget Task entity,
+                            @Context ProjectRepository projectRepository,
+                            @Context SectionRepository sectionRepository,
+                            @Context TagRepository tagRepository);
 
+    // ===== Custom Mapping Methods (Using @Named for clarity) =====
 
-    // Metodo che converte il Set di tags in set di id
-    default Set<Long> mapTagsToIds(Set<Tag> tags) {
-        if (tags == null) return null;
-        return tags.stream().map(Tag::getId).collect(Collectors.toSet());
-    }
-
-    // Metodo che converte il Set di tags id in set di tags
-    default Set<Tag> mapIdsToTags(Set<Long> ids) {
-        if (ids == null) return null;
-        return ids.stream().map(id -> {
-            Tag tag = new Tag();
-            tag.setId(id);
-            return tag;
-        }).collect(Collectors.toSet());
-    }
-
-    // Metodo richiamato in automatico dopo il mapping TaskDTO a Task
-    // Converte gli id dei tag in veri oggetti tag nella entity Task
-    @AfterMapping
-    default void mapTags(TaskDTO dto, @MappingTarget Task entity, TagService tagService) {
-        if (dto.getTagIds() != null) {
-            Set<Tag> tags = dto.getTagIds().stream()
-                    .map(id -> tagService.findById(id)
-                            .orElseThrow(() -> new RuntimeException("Tag " + id + " not found")))
-                    .collect(Collectors.toSet());
-            entity.setTags(tags);
+    @Named("projectIdToProject")
+    default Project projectIdToProject(Long projectId, @Context ProjectRepository projectRepository) {
+        if (projectId == null) {
+            return null;
         }
+        return projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Project not found with id: " + projectId));
+    }
+
+    @Named("sectionIdToSection")
+    default Section sectionIdToSection(Long sectionId, @Context SectionRepository sectionRepository) {
+        if (sectionId == null) {
+            return null;
+        }
+        return sectionRepository.findById(sectionId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Section not found with id: " + sectionId));
+    }
+
+    @Named("tagIdsToTags")
+    default Set<Tag> tagIdsToTags(Set<Long> tagIds, @Context TagRepository tagRepository) {
+        if (tagIds == null || tagIds.isEmpty()) {
+            return null;
+        }
+        return tagIds.stream()
+                .map(id -> tagRepository.findById(id)
+                        .orElseThrow(() -> new ResponseStatusException(
+                                HttpStatus.NOT_FOUND, "Tag not found with id: " + id)))
+                .collect(Collectors.toSet());
+    }
+
+    @Named("tagsToTagIds")
+    default Set<Long> tagsToTagIds(Set<Tag> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return null;
+        }
+        return tags.stream()
+                .map(Tag::getId)
+                .collect(Collectors.toSet());
     }
 }

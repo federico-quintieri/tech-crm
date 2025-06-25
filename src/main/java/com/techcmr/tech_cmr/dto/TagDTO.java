@@ -1,9 +1,6 @@
 package com.techcmr.tech_cmr.dto;
 
-import com.techcmr.tech_cmr.model.Project;
-import com.techcmr.tech_cmr.model.Task;
 
-import java.util.List;
 import java.util.Set;
 
 public class TagDTO {

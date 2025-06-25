@@ -1,9 +1,7 @@
 package com.techcmr.tech_cmr.mapper;
 
-import com.techcmr.tech_cmr.dto.TagDTO;
 import com.techcmr.tech_cmr.dto.UserDTO;
 import com.techcmr.tech_cmr.model.Role;
-import com.techcmr.tech_cmr.model.Tag;
 import com.techcmr.tech_cmr.model.User;
 import org.mapstruct.*;
 

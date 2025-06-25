@@ -3,9 +3,12 @@ package com.techcmr.tech_cmr.service;
 import com.techcmr.tech_cmr.dto.ProjectDTO;
 import com.techcmr.tech_cmr.mapper.ProjectMapper;
 import com.techcmr.tech_cmr.model.Project;
-import com.techcmr.tech_cmr.model.Tag;
 import com.techcmr.tech_cmr.model.Task;
 import com.techcmr.tech_cmr.repository.ProjectRepository;
+import com.techcmr.tech_cmr.repository.TagRepository;
+import com.techcmr.tech_cmr.repository.TaskRepository;
+import com.techcmr.tech_cmr.repository.TeamRepository;
+import com.techcmr.tech_cmr.repository.WorkspaceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,24 +16,23 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class ProjectService {
 
-    // Autowired repository
     @Autowired
     private ProjectRepository projectRepository;
 
-    // Autowired services
+    // Use repositories directly instead of services to avoid circular dependency
     @Autowired
-    private TeamService teamService;
+    private TeamRepository teamRepository;
     @Autowired
-    private WorkspaceService workspaceService;
+    private WorkspaceRepository workspaceRepository;
     @Autowired
-    private TaskService taskService;
+    private TaskRepository taskRepository;
+    @Autowired
+    private TagRepository tagRepository;
 
-    // Autowired mapper
     @Autowired
     private ProjectMapper projectMapper;
 
@@ -45,55 +47,51 @@ public class ProjectService {
 
     // READ
     public ProjectDTO findProjectById(Long id) {
-        Project project = projectRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Project project = projectRepository.findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
         return projectMapper.toDto(project);
     }
 
     // CREATE
     public ProjectDTO createProject(ProjectDTO projectDTO) {
+        // Use repositories instead of services
+        Project project = projectMapper.toEntity(projectDTO, teamRepository, workspaceRepository, 
+                                                taskRepository, tagRepository);
 
-        // Mappatura completa con i servizi passati come @Context
-        Project project = projectMapper.toEntity(projectDTO, teamService, workspaceService, taskService);
-
-        // Qui in pratica vado per ogni task ad assegnargli il progetto
+        // Set bidirectional relationship for tasks
         if(project.getTasks() != null){
             for(Task task : project.getTasks()){
                 task.setProject(project);
             }
         }
 
-        // Salvataggio
         Project savedProject = projectRepository.save(project);
-
-        // Ritorno DTO
         return projectMapper.toDto(savedProject);
-
     }
 
     // UPDATE
     public void updateProject(Long id, ProjectDTO projectDTO) {
-        // 1. Trovo l'entità esistente
         Project existingProject = projectRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
 
-        // 2. Applico i nuovi valori (merge tra DTO e entity esistente)
-        projectMapper.updateEntityFromDto(projectDTO, existingProject, teamService, workspaceService,taskService);
+        projectMapper.updateEntityFromDto(projectDTO, existingProject, teamRepository, 
+                                        workspaceRepository, taskRepository, tagRepository);
 
-        // Qui in pratica vado per ogni task ad assegnargli il progetto
+        // Set bidirectional relationship for tasks
         if(existingProject.getTasks() != null){
             for(Task task : existingProject.getTasks()){
                 task.setProject(existingProject);
             }
         }
-        // 3. Salvo
-        projectRepository.save(existingProject);
 
+        projectRepository.save(existingProject);
     }
 
     // DELETE
     public void deleteProject(Long id) {
-        projectRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if (!projectRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found");
+        }
         projectRepository.deleteById(id);
     }
-
 }

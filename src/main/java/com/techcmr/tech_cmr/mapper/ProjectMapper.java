@@ -1,99 +1,117 @@
 package com.techcmr.tech_cmr.mapper;
 
 import com.techcmr.tech_cmr.dto.ProjectDTO;
-import com.techcmr.tech_cmr.model.*;
-import com.techcmr.tech_cmr.service.TagService;
-import com.techcmr.tech_cmr.service.TaskService;
-import com.techcmr.tech_cmr.service.TeamService;
-import com.techcmr.tech_cmr.service.WorkspaceService;
+import com.techcmr.tech_cmr.model.Project;
+import com.techcmr.tech_cmr.model.Tag;
+import com.techcmr.tech_cmr.model.Task;
+import com.techcmr.tech_cmr.model.Team;
+import com.techcmr.tech_cmr.model.Workspace;
+import com.techcmr.tech_cmr.repository.TagRepository;
+import com.techcmr.tech_cmr.repository.TaskRepository;
+import com.techcmr.tech_cmr.repository.TeamRepository;
+import com.techcmr.tech_cmr.repository.WorkspaceRepository;
 import org.mapstruct.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-// Definisco interfaccia con il mapper che usa i service delle relazioni
-@Mapper(componentModel = "spring", uses = {TeamService.class, WorkspaceService.class, TagService.class})
+@Mapper(componentModel = "spring")
 public interface ProjectMapper {
 
-    // Definisco quali metodi devono essere usati per convertire dei campi da entity a dto
-    @Mapping(target = "tagIds", expression = "java(mapTagsToIds(project.getTags()))")
-    @Mapping(target = "teamId", expression = "java(mapTeamToId(project.getTeam()))")
-    @Mapping(target = "workspaceId", expression = "java(mapWorkspaceToId(project.getWorkspace()))")
-    @Mapping(target = "taskIds", expression = "java(mapTasksToIds(project.getTasks()))")
+    // DTO to Entity mapping
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "team", source = "teamId", qualifiedByName = "teamIdToTeam")
+    @Mapping(target = "workspace", source = "workspaceId", qualifiedByName = "workspaceIdToWorkspace")
+    @Mapping(target = "tags", source = "tagIds", qualifiedByName = "tagIdsToTags")
+    @Mapping(target = "tasks", source = "taskIds", qualifiedByName = "taskIdsToTasks")
+    Project toEntity(ProjectDTO projectDTO, 
+                     @Context TeamRepository teamRepository, 
+                     @Context WorkspaceRepository workspaceRepository, 
+                     @Context TaskRepository taskRepository,
+                     @Context TagRepository tagRepository);
+
+    // Entity to DTO mapping
+    @Mapping(target = "teamId", source = "team.id")
+    @Mapping(target = "workspaceId", source = "workspace.id")
+    @Mapping(target = "tagIds", source = "tags", qualifiedByName = "tagsToTagIds")
+    @Mapping(target = "taskIds", source = "tasks", qualifiedByName = "tasksToTaskIds")
     ProjectDTO toDto(Project project);
 
-    // Definisco quali metodi devono essere usati per convertire dei campi da dto a entity
+    // Update existing entity from DTO
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "tags", expression = "java(mapIdsToTags(dto.getTagIds()))")
-    @Mapping(target = "team", expression = "java(mapIdToTeam(dto.getTeamId(), teamService))")
-    @Mapping(target = "workspace", expression = "java(mapIdToWorkspace(dto.getWorkspaceId(), workspaceService))")
-    @Mapping(target = "tasks", expression = "java(mapIdsToTasks(dto.getTaskIds(), taskService))")
-    Project toEntity(ProjectDTO dto, @Context TeamService teamService, @Context WorkspaceService workspaceService, @Context TaskService taskService);
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "team", source = "teamId", qualifiedByName = "teamIdToTeam")
+    @Mapping(target = "workspace", source = "workspaceId", qualifiedByName = "workspaceIdToWorkspace")
+    @Mapping(target = "tags", source = "tagIds", qualifiedByName = "tagIdsToTags")
+    @Mapping(target = "tasks", source = "taskIds", qualifiedByName = "taskIdsToTasks")
+    void updateEntityFromDto(ProjectDTO projectDTO, 
+                           @MappingTarget Project project, 
+                           @Context TeamRepository teamRepository, 
+                           @Context WorkspaceRepository workspaceRepository, 
+                           @Context TaskRepository taskRepository, 
+                           @Context TagRepository tagRepository);
 
-    // Definisco quali metodi devono essere usati per mergiare entity da dto
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    @Mapping(target = "tags", expression = "java(mapIdsToTags(dto.getTagIds()))")
-    @Mapping(target = "team", expression = "java(mapIdToTeam(dto.getTeamId(), teamService))")
-    @Mapping(target = "workspace", expression = "java(mapIdToWorkspace(dto.getWorkspaceId(), workspaceService))")
-    @Mapping(target = "tasks", expression = "java(mapIdsToTasks(dto.getTaskIds(), taskService))")
-    void updateEntityFromDto(ProjectDTO dto, @MappingTarget Project entity, @Context TeamService teamService, @Context WorkspaceService workspaceService, @Context TaskService taskService);
-
-    // METODI CHE PRENDONO OGGETTO/i E RESTITUISCONO ID/s
-
-    // Prende i tag e mi fa un set dei loro id
-    default Set<Long> mapTagsToIds(Set<Tag> tags) {
-        if (tags == null) return null;
-        return tags.stream().map(Tag::getId).collect(Collectors.toSet());
+    // Custom mapping methods using repositories
+    @Named("teamIdToTeam")
+    default Team teamIdToTeam(Long teamId, @Context TeamRepository teamRepository) {
+        if (teamId == null) {
+            return null;
+        }
+        return teamRepository.findById(teamId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Team not found with id: " + teamId));
     }
 
-    default Set<Long> mapTasksToIds(Set<Task> tasks) {
-        if (tasks == null) return null;
-        return tasks.stream().map(Task::getId).collect(Collectors.toSet());
+    @Named("workspaceIdToWorkspace")
+    default Workspace workspaceIdToWorkspace(Long workspaceId, @Context WorkspaceRepository workspaceRepository) {
+        if (workspaceId == null) {
+            return null;
+        }
+        return workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Workspace not found with id: " + workspaceId));
     }
 
-    // Da team mi restituisce l'id
-    default Long mapTeamToId(Team team) {
-        return team != null ? team.getId() : null;
-    }
-
-    // Da workspace mi restituisce l'id
-    default Long mapWorkspaceToId(Workspace workspace) {
-        return workspace != null ? workspace.getId() : null;
-    }
-
-    // METODI CHE PRENDONO ID/s E RESTITUISCONO OGGETTO/i
-
-    // Metodo che prende gli ids e mi ci fa un set di tags
-    default Set<Tag> mapIdsToTags(Set<Long> ids) {
-        if (ids == null) return null;
-        return ids.stream().map(id -> {
-            Tag tag = new Tag();
-            tag.setId(id);
-            return tag;
-        }).collect(Collectors.toSet());
-    }
-
-    // Metodo che prendi gli ids e ci fa un set di tasks
-    default Set<Task> mapIdsToTasks(Set<Long> ids, @Context TaskService taskService) {
-        if (ids == null) return null;
-        return ids.stream()
-                .map(id -> taskService.findById(id)
-                        .orElseThrow(() -> new RuntimeException("Task with id " + id + " not found")))
+    @Named("tagIdsToTags")
+    default Set<Tag> tagIdsToTags(Set<Long> tagIds, @Context TagRepository tagRepository) {
+        if (tagIds == null || tagIds.isEmpty()) {
+            return null;
+        }
+        return tagIds.stream()
+                .map(id -> tagRepository.findById(id)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tag not found with id: " + id)))
                 .collect(Collectors.toSet());
     }
 
-    // Metodo che da id team mi prende il team
-    default Team mapIdToTeam(Long id, TeamService teamService) {
-        if (id == null) return null;
-        return teamService.findById(id)
-                .orElseThrow(() -> new RuntimeException("Team with id " + id + " not found"));
+    @Named("taskIdsToTasks")
+    default Set<Task> taskIdsToTasks(Set<Long> taskIds, @Context TaskRepository taskRepository) {
+        if (taskIds == null || taskIds.isEmpty()) {
+            return null;
+        }
+        return taskIds.stream()
+                .map(id -> taskRepository.findById(id)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found with id: " + id)))
+                .collect(Collectors.toSet());
     }
 
-    // Metodo che da id di workspace mi prende il workspace
-    default Workspace mapIdToWorkspace(Long id, WorkspaceService workspaceService) {
-        if (id == null) return null;
-        return workspaceService.findById(id)
-                .orElseThrow(() -> new RuntimeException("Workspace with id " + id + " not found"));
+    @Named("tagsToTagIds")
+    default Set<Long> tagsToTagIds(Set<Tag> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return null;
+        }
+        return tags.stream()
+                .map(Tag::getId)
+                .collect(Collectors.toSet());
     }
 
+    @Named("tasksToTaskIds")
+    default Set<Long> tasksToTaskIds(Set<Task> tasks) {
+        if (tasks == null || tasks.isEmpty()) {
+            return null;
+        }
+        return tasks.stream()
+                .map(Task::getId)
+                .collect(Collectors.toSet());
+    }
 }
