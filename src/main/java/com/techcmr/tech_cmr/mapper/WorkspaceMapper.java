@@ -39,6 +39,8 @@ public interface WorkspaceMapper {
                            @Context TeamRepository teamRepository,
                            @Context ProjectRepository projectRepository);
 
+
+                           
     // ===== Named Conversion Methods =====
 
     @Named("teamsToTeamIds")

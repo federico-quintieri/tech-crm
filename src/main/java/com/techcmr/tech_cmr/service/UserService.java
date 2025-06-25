@@ -3,6 +3,7 @@ package com.techcmr.tech_cmr.service;
 import com.techcmr.tech_cmr.dto.UserDTO;
 import com.techcmr.tech_cmr.mapper.UserMapper;
 import com.techcmr.tech_cmr.model.User;
+import com.techcmr.tech_cmr.repository.RoleRepository;
 import com.techcmr.tech_cmr.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,8 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private UserMapper userMapper;
@@ -32,7 +35,7 @@ public class UserService {
 
     // CREATE
     public UserDTO createUser(UserDTO userDTO) {
-        User user = userMapper.toEntity(userDTO);
+        User user = userMapper.toEntity(userDTO,roleRepository);
         User savedUser = userRepository.save(user);
         return userMapper.toDto(savedUser);
     }
@@ -41,8 +44,7 @@ public class UserService {
     public void updateUser(Long id, UserDTO userDTO) {
         User updatedUser = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        updatedUser.setUsername(userDTO.getUsername());
-        updatedUser.setPassword(userDTO.getPassword());
+        userMapper.updateEntityFromDto(userDTO, updatedUser, roleRepository);
 
         userRepository.save(updatedUser);
     }
