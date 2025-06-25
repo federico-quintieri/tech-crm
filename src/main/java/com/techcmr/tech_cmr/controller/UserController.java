@@ -37,7 +37,7 @@ public class UserController {
     }
 
     // POST /users - Crea un nuovo utente
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
         UserDTO createdUser = userService.createUser(userDTO);
         return ResponseEntity.ok(createdUser);
@@ -52,6 +52,11 @@ public class UserController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PostMapping("/login")
+    public String login(@RequestBody UserDTO user) {
+        return userService.verify(user);
     }
 
     // DELETE /users/{id} - Elimina un utente
