@@ -17,6 +17,9 @@ public class ProjectDTO {
 
     private Set<Long> tagIds; // solo ID dei tag
     private Set<Long> taskIds; // solo ID delle task collegate al progetto
+    private Set<Long> attachmentIds; // solo ID degli attachment collegati al progetto
+    private Set<Long> sectionIds; // solo ID delle section collegate al progetto
+    private Set<Long> storyIds; // solo ID delle storie collegate al progetto
 
     private ProjectStatus status;
 
@@ -123,4 +126,31 @@ public class ProjectDTO {
     public void setTaskIds(Set<Long> tasksIds) {
         this.taskIds = tasksIds;
     }
+
+    public Set<Long> getAttachmentIds() {
+        return this.attachmentIds;
+    }
+
+    public void setAttachmentIds(Set<Long> attachmentIds) {
+        this.attachmentIds = attachmentIds;
+    }
+
+    public Set<Long> getSectionIds() {
+        return this.sectionIds;
+    }
+
+    public void setSectionIds(Set<Long> sectionIds) {
+        this.sectionIds = sectionIds;
+    }
+
+
+    public Set<Long> getStoryIds() {
+        return this.storyIds;
+    }
+
+    public void setStoryIds(Set<Long> storyIds) {
+        this.storyIds = storyIds;
+    }
+
+
 }

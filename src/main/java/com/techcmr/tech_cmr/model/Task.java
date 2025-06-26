@@ -27,6 +27,10 @@ public class Task {
     @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
 
+    // Relazione uno a molti con attachments
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
+    private Set<Attachment> attachments;
+
     // Relazione many to one con progetto, un solo progetto
     @ManyToOne
     @JoinColumn(name = "project_id")
@@ -34,11 +38,7 @@ public class Task {
 
     // Relazione many to many con tag
     @ManyToMany
-    @JoinTable(
-            name = "task_tags",
-            joinColumns = @JoinColumn(name = "task_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
+    @JoinTable(name = "task_tags", joinColumns = @JoinColumn(name = "task_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags;
 
     // Relazione Many to one con section
@@ -56,7 +56,6 @@ public class Task {
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
 
     private LocalDate dueDate;
 

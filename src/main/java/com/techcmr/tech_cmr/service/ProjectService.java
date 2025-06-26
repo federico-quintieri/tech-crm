@@ -4,7 +4,10 @@ import com.techcmr.tech_cmr.dto.ProjectDTO;
 import com.techcmr.tech_cmr.mapper.ProjectMapper;
 import com.techcmr.tech_cmr.model.Project;
 import com.techcmr.tech_cmr.model.Task;
+import com.techcmr.tech_cmr.repository.AttachmentRepository;
 import com.techcmr.tech_cmr.repository.ProjectRepository;
+import com.techcmr.tech_cmr.repository.SectionRepository;
+import com.techcmr.tech_cmr.repository.StoryRepository;
 import com.techcmr.tech_cmr.repository.TagRepository;
 import com.techcmr.tech_cmr.repository.TaskRepository;
 import com.techcmr.tech_cmr.repository.TeamRepository;
@@ -34,6 +37,12 @@ public class ProjectService {
     private TaskRepository taskRepository;
     @Autowired
     private TagRepository tagRepository;
+    @Autowired
+    private SectionRepository sectionRepository;
+    @Autowired
+    private AttachmentRepository attachmentRepository;
+    @Autowired
+    private StoryRepository storyRepository;
 
     @Autowired
     private ProjectMapper projectMapper;
@@ -58,7 +67,7 @@ public class ProjectService {
     public ProjectDTO createProject(ProjectDTO projectDTO) {
         // Use repositories instead of services
         Project project = projectMapper.toEntity(projectDTO, teamRepository, workspaceRepository,
-                taskRepository, tagRepository);
+                taskRepository, tagRepository, sectionRepository, attachmentRepository,storyRepository);
 
         // Set bidirectional relationship for tasks
         if (project.getTasks() != null) {
@@ -98,7 +107,7 @@ public class ProjectService {
                 updatedTasks.add(task); // Aggiungo al set di nuove task questa task
             }
         }
-        
+
         // 5. Rimuovi i task non più presenti
         for (Task oldTask : existingTasks) {
             if (!updatedTasks.contains(oldTask)) {

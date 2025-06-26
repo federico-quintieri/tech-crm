@@ -32,6 +32,18 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private Set<Task> tasks;
 
+    // Relazione uno a molti con attachment
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    private Set<Attachment> attachments;
+
+    // Un project ha molte sections
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Section> sections;
+
+    // Un project ha molte stories
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Story> stories;
+
     // Relazione molti a uno con workspace
     @ManyToOne(optional = false)
     @JoinColumn(name = "workspace_id", nullable = false)
@@ -39,11 +51,7 @@ public class Project {
 
     // Relazione molti a molti con tags
     @ManyToMany
-    @JoinTable(
-            name = "project_tags",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
+    @JoinTable(name = "project_tags", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags;
 
     @Enumerated(EnumType.STRING)
@@ -63,7 +71,8 @@ public class Project {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // 👉 Metodo che imposta createdAt quando l'entità viene salvata per la prima volta
+    // 👉 Metodo che imposta createdAt quando l'entità viene salvata per la prima
+    // volta
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
@@ -165,4 +174,31 @@ public class Project {
     public void setTags(Set<Tag> tags) {
         this.tags = tags;
     }
+
+    public Set<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(Set<Attachment> attachments) {
+        this.attachments = attachments;
+    }
+
+    public Set<Section> getSections() {
+        return sections;
+    }
+
+    public void setSections(Set<Section> sections) {
+        this.sections = sections;
+    }
+
+
+    public Set<Story> getStories() {
+        return this.stories;
+    }
+
+    public void setStories(Set<Story> stories) {
+        this.stories = stories;
+    }
+
+
 }
