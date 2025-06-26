@@ -28,11 +28,6 @@ public class TagService {
     private TaskRepository taskRepository;
 
     @Autowired
-    private ProjectService projectService;
-    @Autowired
-    private TaskService taskService;
-
-    @Autowired
     private TagMapper tagMapper;
 
     public Optional<Tag> findById(Long id) {
@@ -52,7 +47,7 @@ public class TagService {
 
     // CREATE
     public TagDTO createTag(TagDTO tagDTO) {
-        Tag tag = tagMapper.toEntity(tagDTO, projectService, taskService);
+        Tag tag = tagMapper.toEntity(tagDTO, projectRepository, taskRepository);
 
         for (Task task : tag.getTasks()) {
             task.getTags().add(tag);
@@ -73,7 +68,7 @@ public class TagService {
                 .orElseThrow(() -> new EntityNotFoundException("Tag not found"));
 
         // Aggiorna solo i campi semplici (es. name)
-        tagMapper.updateEntityFromDto(tagDTO, tag, projectService, taskService);
+        tagMapper.updateEntityFromDto(tagDTO, tag);
 
         // Gestione manuale delle relazioni Task
         if (tagDTO.getTaskIds() != null) {

@@ -13,9 +13,10 @@ public class WebConfig implements WebMvcConfigurer {
     // Implementiamo il metodo che ci serve per stabilire la politica Cors
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
-        registry.addMapping("/api/**")
+        registry.addMapping("/**")
                 .allowedOrigins("http://localhost:5173")
-                .allowedMethods("GET","POST","PUT","DELETE")
-                .allowedHeaders("*");
+                .allowedMethods("*") // oppure aggiungi anche OPTIONS
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
 }

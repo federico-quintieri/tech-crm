@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Section {
@@ -24,7 +25,7 @@ public class Section {
 
     // Una section contiene molte task
     @OneToMany(mappedBy = "section", cascade = CascadeType.ALL)
-    private List<Task> tasks;
+    private Set<Task> tasks;
 
     // Getters e setters
 
@@ -52,11 +53,11 @@ public class Section {
         this.project = project;
     }
 
-    public List<Task> getTasks() {
+    public Set<Task> getTasks() {
         return tasks;
     }
 
-    public void setTasks(List<Task> tasks) {
+    public void setTasks(Set<Task> tasks) {
         this.tasks = tasks;
     }
 }

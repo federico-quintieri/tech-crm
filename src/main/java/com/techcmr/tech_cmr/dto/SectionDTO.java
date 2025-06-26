@@ -1,6 +1,7 @@
 package com.techcmr.tech_cmr.dto;
 
 import java.util.List;
+import java.util.Set;
 
 public class SectionDTO {
 
@@ -9,7 +10,7 @@ public class SectionDTO {
 
     private Long projectId;
 
-    private List<Long> taskIds;  // lista degli ID delle task
+    private Set<Long> taskIds;  // lista degli ID delle task
 
     // Getters e Setters
 
@@ -37,11 +38,11 @@ public class SectionDTO {
         this.projectId = projectId;
     }
 
-    public List<Long> getTaskIds() {
+    public Set<Long> getTaskIds() {
         return taskIds;
     }
 
-    public void setTaskIds(List<Long> taskIds) {
+    public void setTaskIds(Set<Long> taskIds) {
         this.taskIds = taskIds;
     }
 }
