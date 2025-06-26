@@ -28,8 +28,8 @@ public class Task {
     private String description;
 
     // Relazione many to one con progetto, un solo progetto
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "project_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "project_id")
     private Project project;
 
     // Relazione many to many con tag

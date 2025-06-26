@@ -14,8 +14,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class ProjectService {
@@ -48,19 +50,19 @@ public class ProjectService {
     // READ
     public ProjectDTO findProjectById(Long id) {
         Project project = projectRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
         return projectMapper.toDto(project);
     }
 
     // CREATE
     public ProjectDTO createProject(ProjectDTO projectDTO) {
         // Use repositories instead of services
-        Project project = projectMapper.toEntity(projectDTO, teamRepository, workspaceRepository, 
-                                                taskRepository, tagRepository);
+        Project project = projectMapper.toEntity(projectDTO, teamRepository, workspaceRepository,
+                taskRepository, tagRepository);
 
         // Set bidirectional relationship for tasks
-        if(project.getTasks() != null){
-            for(Task task : project.getTasks()){
+        if (project.getTasks() != null) {
+            for (Task task : project.getTasks()) {
                 task.setProject(project);
             }
         }
@@ -71,19 +73,43 @@ public class ProjectService {
 
     // UPDATE
     public void updateProject(Long id, ProjectDTO projectDTO) {
+
+        // 1. Trova il project esistente
         Project existingProject = projectRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
 
-        projectMapper.updateEntityFromDto(projectDTO, existingProject, teamRepository, 
-                                        workspaceRepository, taskRepository, tagRepository);
+        // 2. Mergiare l'entity alla DTO
+        projectMapper.updateEntityFromDto(projectDTO, existingProject, teamRepository,
+                workspaceRepository, tagRepository);
 
-        // Set bidirectional relationship for tasks
-        if(existingProject.getTasks() != null){
-            for(Task task : existingProject.getTasks()){
-                task.setProject(existingProject);
+        // 3. Copia i task vecchi
+        Set<Task> existingTasks = new HashSet<>(existingProject.getTasks());
+
+        // 4. Mappa i nuovi task dal DTO
+        Set<Task> updatedTasks = new HashSet<>();
+        if (projectDTO.getTaskIds() != null) {
+
+            for (Long taskId : projectDTO.getTaskIds()) {
+
+                Task task = taskRepository.findById(taskId)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+                task.setProject(existingProject); // Alla task setto il progetto
+                updatedTasks.add(task); // Aggiungo al set di nuove task questa task
+            }
+        }
+        
+        // 5. Rimuovi i task non più presenti
+        for (Task oldTask : existingTasks) {
+            if (!updatedTasks.contains(oldTask)) {
+                oldTask.setProject(null);
             }
         }
 
+        // 6. Applica i nuovi task al progetto
+        existingProject.setTasks(updatedTasks);
+
+        // 7. Salva il progetto nel db
         projectRepository.save(existingProject);
     }
 

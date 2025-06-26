@@ -32,8 +32,8 @@ public interface SectionMapper {
     // Definisco quali metodi devono essere usati per mergiare entity a dto
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "project", expression = "java(projectFromId(dto.getProjectId(), projectRepository))")
-    @Mapping(target = "tasks", expression = "java(tasksFromIds(dto.getTaskIds(), taskRepository))")
-    void updateEntityFromDto(SectionDTO dto, @MappingTarget Section entity, @Context ProjectRepository projectRepository, @Context TaskRepository taskRepository);
+    @Mapping(target = "tasks", ignore = true)
+    void updateEntityFromDto(SectionDTO dto, @MappingTarget Section entity, @Context ProjectRepository projectRepository);
 
 
     // METODI che da oggetto/i mi danno id/s

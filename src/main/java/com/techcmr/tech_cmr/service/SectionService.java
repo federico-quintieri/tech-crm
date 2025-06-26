@@ -62,10 +62,13 @@ public class SectionService {
         Section existing = sectionRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        // 2. Copia i task vecchi
+        // 2. Mergiare l'entity alla DTO
+        sectionMapper.updateEntityFromDto(sectionDTO, existing, projectRepository);
+
+        // 3. Copia i task vecchi
         Set<Task> existingTasks = new HashSet<>(existing.getTasks());
 
-        // 3. Mappa i nuovi task dal DTO
+        // 4. Mappa i nuovi task dal DTO
         Set<Task> updatedTasks = new HashSet<>();
         if (sectionDTO.getTaskIds() != null) {
 
@@ -79,17 +82,17 @@ public class SectionService {
 
         }
 
-        // 4. Rimuovi i task non più presenti
+        // 5. Rimuovi i task non più presenti
         for (Task oldTask : existingTasks) {
             if (!updatedTasks.contains(oldTask)) {
                 oldTask.setSection(null); // Stacca da relazione
             }
         }
 
-        // 5. Applica i nuovi task alla sezione
+        // 6. Applica i nuovi task alla sezione
         existing.setTasks(updatedTasks);
 
-        // 6. Salva la section
+        // 7. Salva la section
         sectionRepository.save(existing);
     }
 

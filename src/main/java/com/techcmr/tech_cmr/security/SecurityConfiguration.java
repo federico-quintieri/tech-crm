@@ -32,6 +32,7 @@ public class SecurityConfiguration {
                 .csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/**").permitAll() // Momentaneamente per testare i cazzo di endpoint
                         .requestMatchers("users/register", "users/login")
                         .permitAll()
                         .anyRequest().authenticated())

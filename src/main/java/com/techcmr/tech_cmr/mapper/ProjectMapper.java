@@ -46,12 +46,11 @@ public interface ProjectMapper {
     @Mapping(target = "team", source = "teamId", qualifiedByName = "teamIdToTeam")
     @Mapping(target = "workspace", source = "workspaceId", qualifiedByName = "workspaceIdToWorkspace")
     @Mapping(target = "tags", source = "tagIds", qualifiedByName = "tagIdsToTags")
-    @Mapping(target = "tasks", source = "taskIds", qualifiedByName = "taskIdsToTasks")
+    @Mapping(target = "tasks", ignore = true)
     void updateEntityFromDto(ProjectDTO projectDTO, 
                            @MappingTarget Project project, 
                            @Context TeamRepository teamRepository, 
-                           @Context WorkspaceRepository workspaceRepository, 
-                           @Context TaskRepository taskRepository, 
+                           @Context WorkspaceRepository workspaceRepository,  
                            @Context TagRepository tagRepository);
 
     // Custom mapping methods using repositories
