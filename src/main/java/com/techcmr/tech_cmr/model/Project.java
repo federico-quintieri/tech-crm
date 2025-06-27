@@ -37,11 +37,11 @@ public class Project {
     private Set<Attachment> attachments;
 
     // Un project ha molte sections
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private Set<Section> sections;
 
     // Un project ha molte stories
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private Set<Story> stories;
 
     // Relazione molti a uno con workspace

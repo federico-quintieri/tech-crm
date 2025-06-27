@@ -2,8 +2,13 @@ package com.techcmr.tech_cmr.service;
 
 import com.techcmr.tech_cmr.dto.ProjectDTO;
 import com.techcmr.tech_cmr.mapper.ProjectMapper;
+import com.techcmr.tech_cmr.model.Attachment;
 import com.techcmr.tech_cmr.model.Project;
+import com.techcmr.tech_cmr.model.Section;
+import com.techcmr.tech_cmr.model.Story;
 import com.techcmr.tech_cmr.model.Task;
+import com.techcmr.tech_cmr.relations.ProjectRelationManager;
+import com.techcmr.tech_cmr.relations.RelationManager;
 import com.techcmr.tech_cmr.repository.AttachmentRepository;
 import com.techcmr.tech_cmr.repository.ProjectRepository;
 import com.techcmr.tech_cmr.repository.SectionRepository;
@@ -47,6 +52,9 @@ public class ProjectService {
     @Autowired
     private ProjectMapper projectMapper;
 
+    @Autowired
+    private ProjectRelationManager projectRelationManager;
+
     public Optional<Project> findById(Long id) {
         return projectRepository.findById(id);
     }
@@ -67,14 +75,9 @@ public class ProjectService {
     public ProjectDTO createProject(ProjectDTO projectDTO) {
         // Use repositories instead of services
         Project project = projectMapper.toEntity(projectDTO, teamRepository, workspaceRepository,
-                taskRepository, tagRepository, sectionRepository, attachmentRepository,storyRepository);
+                taskRepository, tagRepository, sectionRepository, attachmentRepository, storyRepository);
 
-        // Set bidirectional relationship for tasks
-        if (project.getTasks() != null) {
-            for (Task task : project.getTasks()) {
-                task.setProject(project);
-            }
-        }
+        projectRelationManager.updateRelationsForPostProject(project);
 
         Project savedProject = projectRepository.save(project);
         return projectMapper.toDto(savedProject);
@@ -91,34 +94,13 @@ public class ProjectService {
         projectMapper.updateEntityFromDto(projectDTO, existingProject, teamRepository,
                 workspaceRepository, tagRepository);
 
-        // 3. Copia i task vecchi
-        Set<Task> existingTasks = new HashSet<>(existingProject.getTasks());
+        // 3. Metodi per aggiornare le relazioni
+        projectRelationManager.updateTasksForProject(existingProject, projectDTO);
+        projectRelationManager.updateAttachmentsForProject(existingProject, projectDTO);
+        projectRelationManager.updateStoriesForProject(existingProject, projectDTO);
+        projectRelationManager.updateSectionsForProject(existingProject, projectDTO);
 
-        // 4. Mappa i nuovi task dal DTO
-        Set<Task> updatedTasks = new HashSet<>();
-        if (projectDTO.getTaskIds() != null) {
-
-            for (Long taskId : projectDTO.getTaskIds()) {
-
-                Task task = taskRepository.findById(taskId)
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-                task.setProject(existingProject); // Alla task setto il progetto
-                updatedTasks.add(task); // Aggiungo al set di nuove task questa task
-            }
-        }
-
-        // 5. Rimuovi i task non più presenti
-        for (Task oldTask : existingTasks) {
-            if (!updatedTasks.contains(oldTask)) {
-                oldTask.setProject(null);
-            }
-        }
-
-        // 6. Applica i nuovi task al progetto
-        existingProject.setTasks(updatedTasks);
-
-        // 7. Salva il progetto nel db
+        // 4. Salva il progetto nel db
         projectRepository.save(existingProject);
     }
 
