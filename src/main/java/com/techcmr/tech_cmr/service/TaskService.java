@@ -3,8 +3,11 @@ package com.techcmr.tech_cmr.service;
 import com.techcmr.tech_cmr.dto.TaskDTO;
 import com.techcmr.tech_cmr.mapper.TaskMapper;
 import com.techcmr.tech_cmr.model.Task;
+import com.techcmr.tech_cmr.relations.TaskRelationManager;
+import com.techcmr.tech_cmr.repository.AttachmentRepository;
 import com.techcmr.tech_cmr.repository.ProjectRepository;
 import com.techcmr.tech_cmr.repository.SectionRepository;
+import com.techcmr.tech_cmr.repository.StoryRepository;
 import com.techcmr.tech_cmr.repository.TagRepository;
 import com.techcmr.tech_cmr.repository.TaskRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -12,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,9 +30,16 @@ public class TaskService {
     private TagRepository tagRepository;
     @Autowired
     private SectionRepository sectionRepository;
+    @Autowired
+    private StoryRepository storyRepository;
+    @Autowired
+    private AttachmentRepository attachmentRepository;
 
     @Autowired
     private TaskMapper taskMapper;
+
+    @Autowired
+    private TaskRelationManager taskRelationManager;
 
     public Optional<Task> findById(Long id) {
         return taskRepository.findById(id);
@@ -54,29 +63,36 @@ public class TaskService {
 
     // CREATE
     public TaskDTO createTask(TaskDTO taskDTO) {
-        // Impostiamo la data di creazione
-        Task task = taskMapper.toEntity(taskDTO,projectRepository,sectionRepository,tagRepository);
-        task.setCreatedAt(LocalDateTime.now());
+        // 1
+        Task task = taskMapper.toEntity(taskDTO, tagRepository, projectRepository, sectionRepository, storyRepository,
+                attachmentRepository);
 
+        // 2
+        taskRelationManager.updateRelationsForPostTask(task);
+
+        // 3
         Task savedTask = taskRepository.save(task);
+        // 4
         return taskMapper.toDto(savedTask);
     }
 
     // UPDATE
     public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
+
+        // 1
         Task existingTask = taskRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Task not found with id: " + id));
 
-        taskMapper.updateEntityFromDto(taskDTO, existingTask, projectRepository,sectionRepository,tagRepository);
+        // 2
+        taskMapper.updateEntityFromDto(taskDTO, existingTask, projectRepository, sectionRepository, tagRepository);
 
-        // Se il task viene completato, impostiamo la data di completamento
-        if (taskDTO.getStatus() != null &&
-                taskDTO.getStatus().name().equals("COMPLETED") &&
-                existingTask.getCompletedAt() == null) {
-            existingTask.setCompletedAt(LocalDateTime.now());
-        }
+        // 3
+        taskRelationManager.updateAttachmentsForTask(existingTask, taskDTO);
+        taskRelationManager.updateStoriesForTask(existingTask, taskDTO);
 
+        // 4
         Task savedTask = taskRepository.save(existingTask);
+        // 5
         return taskMapper.toDto(savedTask);
     }
 

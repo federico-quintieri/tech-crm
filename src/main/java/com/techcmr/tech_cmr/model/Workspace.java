@@ -20,11 +20,11 @@ public class Workspace {
     private String name;
 
     // One workspace has many teams
-    @OneToMany(mappedBy = "workspace",  cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "workspace",  cascade = CascadeType.ALL)
     private List<Team> teams;
 
     // One workspace has many projects
-    @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL)
     private List<Project> projects;
 
     // Getters and setters

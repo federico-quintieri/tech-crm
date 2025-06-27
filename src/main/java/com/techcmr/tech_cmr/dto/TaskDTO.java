@@ -14,8 +14,10 @@ public class TaskDTO {
     private String description;
 
     private Long projectId;
-    private Set<Long> tagIds;
     private Long sectionId;
+    private Set<Long> tagIds;
+    private Set<Long> attachmentIds;
+    private Set<Long> storyIds;
 
     private TaskStatus status;
     private TaskPriority priority;
@@ -113,4 +115,21 @@ public class TaskDTO {
     public void setCompletedAt(LocalDateTime completedAt) {
         this.completedAt = completedAt;
     }
+
+    public Set<Long> getAttachmentIds() {
+        return this.attachmentIds;
+    }
+
+    public void setAttachmentIds(Set<Long> attachmentIds) {
+        this.attachmentIds = attachmentIds;
+    }
+
+    public Set<Long> getStoryIds() {
+        return this.storyIds;
+    }
+
+    public void setStoryIds(Set<Long> storyIds) {
+        this.storyIds = storyIds;
+    }
+
 }

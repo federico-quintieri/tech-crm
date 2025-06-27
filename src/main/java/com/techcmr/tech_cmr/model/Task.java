@@ -2,6 +2,7 @@ package com.techcmr.tech_cmr.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.techcmr.tech_cmr.enums.TaskStatus;
@@ -30,6 +31,10 @@ public class Task {
     // Relazione uno a molti con attachments
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
     private Set<Attachment> attachments;
+
+    // Relazione uno a molti con stories
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
+    private Set<Story> stories = new HashSet<>();
 
     // Relazione many to one con progetto, un solo progetto
     @ManyToOne
@@ -61,6 +66,11 @@ public class Task {
 
     @PastOrPresent(message = "Completed date cannot be in the future")
     private LocalDateTime completedAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     // Getters and setters
 
@@ -151,4 +161,21 @@ public class Task {
     public void setSection(Section section) {
         this.section = section;
     }
+
+    public Set<Story> getStories() {
+        return stories;
+    }
+
+    public void setStories(Set<Story> stories) {
+        this.stories = stories;
+    }
+
+    public Set<Attachment> getAttachments() {
+        return this.attachments;
+    }
+
+    public void setAttachments(Set<Attachment> attachments) {
+        this.attachments = attachments;
+    }
+
 }

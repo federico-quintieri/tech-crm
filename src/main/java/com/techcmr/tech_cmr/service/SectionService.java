@@ -4,6 +4,7 @@ import com.techcmr.tech_cmr.dto.SectionDTO;
 import com.techcmr.tech_cmr.mapper.SectionMapper;
 import com.techcmr.tech_cmr.model.Section;
 import com.techcmr.tech_cmr.model.Task;
+import com.techcmr.tech_cmr.relations.SectionRelationManager;
 import com.techcmr.tech_cmr.repository.ProjectRepository;
 import com.techcmr.tech_cmr.repository.SectionRepository;
 import com.techcmr.tech_cmr.repository.TaskRepository;
@@ -31,6 +32,9 @@ public class SectionService {
     @Autowired
     private SectionMapper sectionMapper;
 
+    @Autowired
+    private SectionRelationManager sectionRelationManager;
+
     // READ
     public List<SectionDTO> findAllSections() {
         return sectionRepository.findAll().stream().map(sectionMapper::toDto).toList();
@@ -45,13 +49,17 @@ public class SectionService {
 
     // CREATE
     public SectionDTO createSection(SectionDTO sectionDTO) {
+
+        // 1. Da dto a entity
         Section section = sectionMapper.toEntity(sectionDTO, projectRepository, taskRepository);
-        if (section.getTasks() != null) {
-            for (Task t : section.getTasks()) {
-                t.setSection(section); // importantissimo per Hibernate
-            }
-        }
+
+        // 2. Metodo per aggiornare relazione one to many
+        sectionRelationManager.updateRelationsForPostSection(section);
+
+        // 3. Salvo la nuova section
         Section saved = sectionRepository.save(section);
+
+        // 4. Restituisco il dto
         return sectionMapper.toDto(saved);
     }
 
@@ -65,34 +73,10 @@ public class SectionService {
         // 2. Mergiare l'entity alla DTO
         sectionMapper.updateEntityFromDto(sectionDTO, existing, projectRepository);
 
-        // 3. Copia i task vecchi
-        Set<Task> existingTasks = new HashSet<>(existing.getTasks());
+        // 3. Metodo per aggiornare la task collegata
+        sectionRelationManager.updateTasksForSection(existing, sectionDTO);
 
-        // 4. Mappa i nuovi task dal DTO
-        Set<Task> updatedTasks = new HashSet<>();
-        if (sectionDTO.getTaskIds() != null) {
-
-            for (Long taskId : sectionDTO.getTaskIds()) {
-
-                Task task = taskRepository.findById(taskId)
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-                task.setSection(existing);
-                updatedTasks.add(task);
-            }
-
-        }
-
-        // 5. Rimuovi i task non più presenti
-        for (Task oldTask : existingTasks) {
-            if (!updatedTasks.contains(oldTask)) {
-                oldTask.setSection(null); // Stacca da relazione
-            }
-        }
-
-        // 6. Applica i nuovi task alla sezione
-        existing.setTasks(updatedTasks);
-
-        // 7. Salva la section
+        // 4. Salva la section
         sectionRepository.save(existing);
     }
 

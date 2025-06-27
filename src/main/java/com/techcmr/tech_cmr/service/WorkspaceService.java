@@ -53,37 +53,24 @@ public class WorkspaceService {
         return workspaceMapper.toDto(workspace);
     }
 
+    // CREATE
     @Transactional
     public WorkspaceDTO createWorkspace(WorkspaceDTO workspaceDTO) {
         Workspace workspace = workspaceMapper.toEntity(workspaceDTO, teamRepository, projectRepository);
+
         Workspace savedWorkspace = workspaceRepository.save(workspace);
-        
-        // Aggiorna le relazioni bidirezionali dopo il salvataggio
-        updateRelationships(savedWorkspace);
-        
+
         return workspaceMapper.toDto(savedWorkspace);
     }
 
+    // UDPATE
     @Transactional
     public WorkspaceDTO updateWorkspace(Long id, WorkspaceDTO workspaceDTO) {
         Workspace existingWorkspace = workspaceRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Workspace not found with id: " + id));
 
-        // 1. Salva copie delle relazioni esistenti
-        List<Team> currentTeams = new ArrayList<>(existingWorkspace.getTeams());
-        List<Project> currentProjects = new ArrayList<>(existingWorkspace.getProjects());
-
-        // 2. Scollega tutte le relazioni esistenti
-        existingWorkspace.getTeams().clear();
-        existingWorkspace.getProjects().clear();
-        workspaceRepository.save(existingWorkspace); // Salva senza flush per evitare problemi
-
         // 3. Applica le modifiche dal DTO
         workspaceMapper.updateEntityFromDto(workspaceDTO, existingWorkspace, teamRepository, projectRepository);
-
-        // 4. Gestisci le relazioni in modo transazionale
-        updateTeamRelationships(existingWorkspace, currentTeams);
-        updateProjectRelationships(existingWorkspace, currentProjects);
 
         // 5. Salva il workspace con le nuove relazioni
         Workspace updatedWorkspace = workspaceRepository.save(existingWorkspace);
@@ -108,59 +95,4 @@ public class WorkspaceService {
         workspaceRepository.delete(workspace);
     }
 
-    // ===== Private Helper Methods =====
-
-    private void updateRelationships(Workspace workspace) {
-        // Aggiorna i team
-        if (!workspace.getTeams().isEmpty()) {
-            workspace.getTeams().forEach(team -> {
-                team.setWorkspace(workspace);
-                teamRepository.save(team);
-            });
-        }
-
-        // Aggiorna i progetti
-        if (!workspace.getProjects().isEmpty()) {
-            workspace.getProjects().forEach(project -> {
-                project.setWorkspace(workspace);
-                projectRepository.save(project);
-            });
-        }
-    }
-
-    private void updateTeamRelationships(Workspace workspace, List<Team> oldTeams) {
-        // Scollega team non più presenti
-        oldTeams.stream()
-            .filter(oldTeam -> !workspace.getTeams().contains(oldTeam))
-            .forEach(team -> {
-                team.setWorkspace(null);
-                teamRepository.save(team);
-            });
-
-        // Collega i nuovi team
-        workspace.getTeams().forEach(team -> {
-            if (team.getWorkspace() == null || !team.getWorkspace().equals(workspace)) {
-                team.setWorkspace(workspace);
-                teamRepository.save(team);
-            }
-        });
-    }
-
-    private void updateProjectRelationships(Workspace workspace, List<Project> oldProjects) {
-        // Scollega progetti non più presenti
-        oldProjects.stream()
-            .filter(oldProject -> !workspace.getProjects().contains(oldProject))
-            .forEach(project -> {
-                project.setWorkspace(null);
-                projectRepository.save(project);
-            });
-
-        // Collega i nuovi progetti
-        workspace.getProjects().forEach(project -> {
-            if (project.getWorkspace() == null || !project.getWorkspace().equals(workspace)) {
-                project.setWorkspace(workspace);
-                projectRepository.save(project);
-            }
-        });
-    }
 }

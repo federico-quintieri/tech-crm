@@ -2,13 +2,8 @@ package com.techcmr.tech_cmr.service;
 
 import com.techcmr.tech_cmr.dto.ProjectDTO;
 import com.techcmr.tech_cmr.mapper.ProjectMapper;
-import com.techcmr.tech_cmr.model.Attachment;
 import com.techcmr.tech_cmr.model.Project;
-import com.techcmr.tech_cmr.model.Section;
-import com.techcmr.tech_cmr.model.Story;
-import com.techcmr.tech_cmr.model.Task;
 import com.techcmr.tech_cmr.relations.ProjectRelationManager;
-import com.techcmr.tech_cmr.relations.RelationManager;
 import com.techcmr.tech_cmr.repository.AttachmentRepository;
 import com.techcmr.tech_cmr.repository.ProjectRepository;
 import com.techcmr.tech_cmr.repository.SectionRepository;
@@ -22,10 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class ProjectService {
@@ -73,13 +66,17 @@ public class ProjectService {
 
     // CREATE
     public ProjectDTO createProject(ProjectDTO projectDTO) {
-        // Use repositories instead of services
+        // 1. Da DTO a ENTITY
         Project project = projectMapper.toEntity(projectDTO, teamRepository, workspaceRepository,
                 taskRepository, tagRepository, sectionRepository, attachmentRepository, storyRepository);
 
+        // 2. Metodo per aggiornare relazioni one to many
         projectRelationManager.updateRelationsForPostProject(project);
 
+        // 3. Salvo nuovo progetto
         Project savedProject = projectRepository.save(project);
+        
+        // 4. Restituisco il dto
         return projectMapper.toDto(savedProject);
     }
 

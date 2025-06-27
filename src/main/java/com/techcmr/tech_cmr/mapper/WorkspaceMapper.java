@@ -32,8 +32,8 @@ public interface WorkspaceMapper {
     // Update Entity from DTO
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "teams", source = "teamIds", qualifiedByName = "teamIdsToTeams")
-    @Mapping(target = "projects", source = "projectIds", qualifiedByName = "projectIdsToProjects")
+    @Mapping(target = "teams", ignore = true)
+    @Mapping(target = "projects", ignore = true)
     void updateEntityFromDto(WorkspaceDTO dto,
                            @MappingTarget Workspace entity,
                            @Context TeamRepository teamRepository,
