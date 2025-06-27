@@ -6,10 +6,11 @@ public class UserDTO {
 
     private Long id;
     private String username;
-    private String password;  // se vuoi esporre la password nel DTO (di solito no, attenzione)
+    private String password; // se vuoi esporre la password nel DTO (di solito no, attenzione)
     private boolean enabled;
 
     private Set<Long> roleIds; // solo gli ID dei ruoli
+    private Set<Long> storyIds; // solo gli ID delle storie
 
     // Getters e setters
 
@@ -52,4 +53,17 @@ public class UserDTO {
     public void setRoleIds(Set<Long> roleIds) {
         this.roleIds = roleIds;
     }
+
+    public boolean getEnabled() {
+        return this.enabled;
+    }
+
+    public Set<Long> getStoryIds() {
+        return this.storyIds;
+    }
+
+    public void setStoryIds(Set<Long> storyIds) {
+        this.storyIds = storyIds;
+    }
+
 }

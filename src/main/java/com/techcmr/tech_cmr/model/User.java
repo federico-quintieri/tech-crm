@@ -26,14 +26,14 @@ public class User {
 
     private boolean enabled;
 
+    @OneToMany(mappedBy = "author")
+    private Set<Story> stories;
+
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
-// Getters and setters
+    // Getters and setters
 
     public Long getId() {
         return id;
@@ -74,4 +74,19 @@ public class User {
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
+
+
+    public boolean getEnabled() {
+        return this.enabled;
+    }
+
+
+    public Set<Story> getStories() {
+        return this.stories;
+    }
+
+    public void setStories(Set<Story> stories) {
+        this.stories = stories;
+    }
+
 }
