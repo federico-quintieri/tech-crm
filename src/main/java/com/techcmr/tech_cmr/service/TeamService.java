@@ -2,7 +2,6 @@ package com.techcmr.tech_cmr.service;
 
 import com.techcmr.tech_cmr.dto.TeamDTO;
 import com.techcmr.tech_cmr.mapper.TeamMapper;
-import com.techcmr.tech_cmr.model.Project;
 import com.techcmr.tech_cmr.model.Team;
 import com.techcmr.tech_cmr.relations.TeamRelationManager;
 import com.techcmr.tech_cmr.repository.ProjectRepository;
@@ -13,7 +12,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

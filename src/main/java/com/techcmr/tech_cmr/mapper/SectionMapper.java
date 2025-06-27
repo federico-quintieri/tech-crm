@@ -10,7 +10,6 @@ import com.techcmr.tech_cmr.service.ProjectService;
 import com.techcmr.tech_cmr.service.TaskService;
 import org.mapstruct.*;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 

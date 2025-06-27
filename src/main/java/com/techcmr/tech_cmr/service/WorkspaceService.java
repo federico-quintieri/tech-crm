@@ -2,8 +2,6 @@ package com.techcmr.tech_cmr.service;
 
 import com.techcmr.tech_cmr.dto.WorkspaceDTO;
 import com.techcmr.tech_cmr.mapper.WorkspaceMapper;
-import com.techcmr.tech_cmr.model.Project;
-import com.techcmr.tech_cmr.model.Team;
 import com.techcmr.tech_cmr.model.Workspace;
 import com.techcmr.tech_cmr.relations.WorkspaceRelationManager;
 import com.techcmr.tech_cmr.repository.ProjectRepository;
@@ -14,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +27,6 @@ public class WorkspaceService {
     @Autowired
     private WorkspaceRelationManager workspaceRelationManager;
 
-    @Autowired
     public WorkspaceService(WorkspaceRepository workspaceRepository,
             TeamRepository teamRepository,
             ProjectRepository projectRepository,
