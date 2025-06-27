@@ -4,6 +4,7 @@ import com.techcmr.tech_cmr.dto.TeamDTO;
 import com.techcmr.tech_cmr.mapper.TeamMapper;
 import com.techcmr.tech_cmr.model.Project;
 import com.techcmr.tech_cmr.model.Team;
+import com.techcmr.tech_cmr.relations.TeamRelationManager;
 import com.techcmr.tech_cmr.repository.ProjectRepository;
 import com.techcmr.tech_cmr.repository.TeamRepository;
 import com.techcmr.tech_cmr.repository.WorkspaceRepository;
@@ -27,6 +28,9 @@ public class TeamService {
     private WorkspaceRepository workspaceRepository;
 
     @Autowired
+    private TeamRelationManager teamRelationManager;
+
+    @Autowired
     private TeamMapper teamMapper;
 
     public Optional<Team> findById(Long id) {
@@ -46,51 +50,35 @@ public class TeamService {
 
     // CREATE
     public TeamDTO createTeam(TeamDTO teamDTO) {
+        // 1
         Team team = teamMapper.toEntity(teamDTO, projectRepository, workspaceRepository);
+
+        // 2
+        teamRelationManager.updateRelationsForPostTeam(team);
+
+        // 3
         Team savedTeam = teamRepository.save(team);
 
-        // Aggiorna la relazione bidirezionale
-        if (savedTeam.getProjects() != null) {
-            savedTeam.getProjects().forEach(project -> {
-                project.setTeam(savedTeam);
-                projectRepository.save(project);
-            });
-        }
-
+        // 4
         return teamMapper.toDto(savedTeam);
     }
 
     // UPDATE
     public TeamDTO updateTeam(Long id, TeamDTO teamDTO) {
+        // 1
         Team existingTeam = teamRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Team not found"));
 
-        // 1. Ottieni i progetti attuali prima di qualsiasi modifica
-        List<Project> currentProjects = existingTeam.getProjects() != null ? new ArrayList<>(existingTeam.getProjects())
-                : new ArrayList<>();
-
-        // 2. Aggiorna il team con i nuovi dati MA non salvare ancora
+        // 2
         teamMapper.updateEntityFromDto(teamDTO, existingTeam, projectRepository, workspaceRepository);
 
-        // 3. Gestisci le relazioni in modo transazionale
-        if (existingTeam.getProjects() != null) {
-            // Rimuovi i progetti non più presenti
-            currentProjects.stream()
-                    .filter(p -> !existingTeam.getProjects().contains(p))
-                    .forEach(p -> {
-                        p.setTeam(null);
-                        projectRepository.save(p);
-                    });
-
-            // Aggiungi i nuovi progetti
-            existingTeam.getProjects().forEach(p -> {
-                p.setTeam(existingTeam);
-                projectRepository.save(p);
-            });
-        }
+        // 3
+        teamRelationManager.updateProjectsForTeam(existingTeam, teamDTO);
 
         // 4. Finalmente salva il team
         Team updatedTeam = teamRepository.save(existingTeam);
+
+        // 5
         return teamMapper.toDto(updatedTeam);
     }
 

@@ -24,7 +24,7 @@ public class Team {
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<Project> projects;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     private Workspace workspace;
 
     @Column(nullable = false, updatable = false)

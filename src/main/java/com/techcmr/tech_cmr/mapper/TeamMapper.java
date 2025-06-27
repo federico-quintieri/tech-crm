@@ -27,19 +27,19 @@ public interface TeamMapper {
     @Mapping(target = "projects", source = "projectIds", qualifiedByName = "projectIdsToProjects")
     @Mapping(target = "workspace", source = "workspaceId", qualifiedByName = "workspaceIdToWorkspace")
     Team toEntity(TeamDTO dto,
-                 @Context ProjectRepository projectRepository,
-                 @Context WorkspaceRepository workspaceRepository);
+            @Context ProjectRepository projectRepository,
+            @Context WorkspaceRepository workspaceRepository);
 
     // Update Entity from DTO
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "projects", source = "projectIds", qualifiedByName = "projectIdsToProjects")
+    @Mapping(target = "projects", ignore = true)
     @Mapping(target = "workspace", source = "workspaceId", qualifiedByName = "workspaceIdToWorkspace")
     void updateEntityFromDto(TeamDTO dto,
-                           @MappingTarget Team entity,
-                           @Context ProjectRepository projectRepository,
-                           @Context WorkspaceRepository workspaceRepository);
+            @MappingTarget Team entity,
+            @Context ProjectRepository projectRepository,
+            @Context WorkspaceRepository workspaceRepository);
 
     // ===== Named Conversion Methods =====
 
@@ -55,7 +55,7 @@ public interface TeamMapper {
 
     @Named("projectIdsToProjects")
     default List<Project> projectIdsToProjects(List<Long> projectIds,
-                                             @Context ProjectRepository projectRepository) {
+            @Context ProjectRepository projectRepository) {
         if (projectIds == null) {
             return null;
         }
@@ -68,7 +68,7 @@ public interface TeamMapper {
 
     @Named("workspaceIdToWorkspace")
     default Workspace workspaceIdToWorkspace(Long workspaceId,
-                                           @Context WorkspaceRepository workspaceRepository) {
+            @Context WorkspaceRepository workspaceRepository) {
         if (workspaceId == null) {
             return null;
         }

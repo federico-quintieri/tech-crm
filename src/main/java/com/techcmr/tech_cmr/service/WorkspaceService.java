@@ -5,6 +5,7 @@ import com.techcmr.tech_cmr.mapper.WorkspaceMapper;
 import com.techcmr.tech_cmr.model.Project;
 import com.techcmr.tech_cmr.model.Team;
 import com.techcmr.tech_cmr.model.Workspace;
+import com.techcmr.tech_cmr.relations.WorkspaceRelationManager;
 import com.techcmr.tech_cmr.repository.ProjectRepository;
 import com.techcmr.tech_cmr.repository.TeamRepository;
 import com.techcmr.tech_cmr.repository.WorkspaceRepository;
@@ -27,10 +28,13 @@ public class WorkspaceService {
     private final WorkspaceMapper workspaceMapper;
 
     @Autowired
+    private WorkspaceRelationManager workspaceRelationManager;
+
+    @Autowired
     public WorkspaceService(WorkspaceRepository workspaceRepository,
-                          TeamRepository teamRepository,
-                          ProjectRepository projectRepository,
-                          WorkspaceMapper workspaceMapper) {
+            TeamRepository teamRepository,
+            ProjectRepository projectRepository,
+            WorkspaceMapper workspaceMapper) {
         this.workspaceRepository = workspaceRepository;
         this.teamRepository = teamRepository;
         this.projectRepository = projectRepository;
@@ -56,24 +60,37 @@ public class WorkspaceService {
     // CREATE
     @Transactional
     public WorkspaceDTO createWorkspace(WorkspaceDTO workspaceDTO) {
+        // 1
         Workspace workspace = workspaceMapper.toEntity(workspaceDTO, teamRepository, projectRepository);
 
+        // 2
+        workspaceRelationManager.updateRelationsForPostWorkspace(workspace);
+
+        // 3
         Workspace savedWorkspace = workspaceRepository.save(workspace);
 
+        // 4
         return workspaceMapper.toDto(savedWorkspace);
     }
 
     // UDPATE
     @Transactional
     public WorkspaceDTO updateWorkspace(Long id, WorkspaceDTO workspaceDTO) {
+        // 1
         Workspace existingWorkspace = workspaceRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Workspace not found with id: " + id));
 
-        // 3. Applica le modifiche dal DTO
+        // 2
         workspaceMapper.updateEntityFromDto(workspaceDTO, existingWorkspace, teamRepository, projectRepository);
 
-        // 5. Salva il workspace con le nuove relazioni
+        // 3
+        workspaceRelationManager.updateProjectsForWorkspace(existingWorkspace, workspaceDTO);
+        workspaceRelationManager.updateTeamsForWorkspace(existingWorkspace, workspaceDTO);
+
+        // 4. Salva il workspace con le nuove relazioni
         Workspace updatedWorkspace = workspaceRepository.save(existingWorkspace);
+
+        // 5
         return workspaceMapper.toDto(updatedWorkspace);
     }
 

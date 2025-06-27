@@ -24,8 +24,8 @@ public class Project {
     private String description;
 
     // Relazione molti a uno con team
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "team_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "team_id")
     private Team team;
 
     // Relazione uno a molti con project
@@ -45,8 +45,8 @@ public class Project {
     private Set<Story> stories;
 
     // Relazione molti a uno con workspace
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "workspace_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "workspace_id")
     private Workspace workspace;
 
     // Relazione molti a molti con tags
