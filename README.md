@@ -38,7 +38,7 @@ Response
 204 No Content se non ci sono ristoranti
 
 Esempio di RestaurantDTO:
-`
+```json
 {
   "id": 1,
   "name": "Trattoria Toscana Roma",
@@ -54,7 +54,8 @@ Esempio di RestaurantDTO:
   "categoryIds": [1, 3],
   "photoIds": [101, 102]
 }
-`
+```
+
 ## 3. Recupero di un ristorante per ID
 **GET** `/restaurants/{id}`
 
