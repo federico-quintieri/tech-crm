@@ -26,8 +26,8 @@ Response (200 OK):
 Plain‑text:
 Ristoranti inseriti con successo
 
-2. Recupero di tutti i ristoranti
-GET /restaurants
+## 2. Recupero di tutti i ristoranti
+**GET** `/restaurants`
 
 Restituisce la lista di tutti i ristoranti.
 
@@ -38,6 +38,7 @@ Response
 204 No Content se non ci sono ristoranti
 
 Esempio di RestaurantDTO:
+`
 {
   "id": 1,
   "name": "Trattoria Toscana Roma",
@@ -53,9 +54,9 @@ Esempio di RestaurantDTO:
   "categoryIds": [1, 3],
   "photoIds": [101, 102]
 }
-
-3. Recupero di un ristorante per ID
-GET /restaurants/{id}
+`
+## 3. Recupero di un ristorante per ID
+**GET** `/restaurants/{id}`
 
 Path Parameter:
 
@@ -68,8 +69,8 @@ Response
 
 404 Not Found se l’ID non esiste
 
-4. Soft delete di un ristorante
-DELETE /restaurants/delete/{id}
+## 4. Soft delete di un ristorante
+**DELETE** `/restaurants/delete/{id}`
 
 Segna un ristorante come “cancellato” (isDeleted = true) senza rimuoverlo fisicamente.
 
